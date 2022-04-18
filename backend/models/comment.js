@@ -1,30 +1,19 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+
+// Create a Comment model to represent comments table in database Groupomania
 module.exports = (sequelize, DataTypes) => {
-  class Comment extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-      models.Comment.belongsTo(models.Post, {
-        foreignKey: {
-          allowNull: false
-        }
-      })
-    }
-  }
-  Comment.init({
+  const Comment = sequelize.define('Comment', {
     id_post_commented: DataTypes.INTEGER,
     date: DataTypes.DATEONLY,
     content: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Comment',
-  });
+  }, {});
+
+  // Comment refer to 1 post
+  // Referencing table comments (id_post_commented) to posts table (idpost)
+  Comment.associate = function (models) {
+    // define association
+    Comment.belongsTo(models.Post);
+  };
+
   return Comment;
 };

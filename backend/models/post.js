@@ -1,33 +1,22 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+
+// Create a Post model to represent posts table in database Groupomania
 module.exports = (sequelize, DataTypes) => {
-  class Post extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-      models.Post.belongsTo(models.User, {
-        foreignKey: {
-          allowNull: false
-        }
-      })
-      models.Post.hasMany(models.Comment);
-    }
-  }
-  Post.init({
+  const Post = sequelize.define('Post', {
     id_post_owner: DataTypes.INTEGER,
     date: DataTypes.DATEONLY,
     title: DataTypes.STRING,
     attachment: DataTypes.STRING,
     likes: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Post',
-  });
+  }, {});  
+  
+  // Post have owner
+  // Referencing table posts (id_post_owner) to users table (iduser)
+  Post.associate = function(models) {
+    // define associations
+    Post.belongsTo(models.User);
+    Post.hasMany(models.Comment);
+  };
+
   return Post;
 };
