@@ -3,7 +3,7 @@
 // Import Node HTTP package
 const http = require('http');
 
-// Import application
+// Import application 
 const app = require('./app');
 
 // Import 'dotenv' package
@@ -23,7 +23,7 @@ const normalizePort = val => {
 };
 
 // Indicate PORT used
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
 // errorhandler > search and manage errors
