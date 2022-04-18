@@ -1,4 +1,6 @@
 'use strict';
+
+// Table comments: characteristics
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Comments', {

@@ -1,4 +1,6 @@
 'use strict';
+
+// Table posts: characteristics
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Posts', {
