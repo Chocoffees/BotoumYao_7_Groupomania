@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 });
 
 // Save routes
-app.use('/api/user', userRoutes);
+app.use('/api/users', userRoutes);
 
 // Export the application
 module.exports = app;
