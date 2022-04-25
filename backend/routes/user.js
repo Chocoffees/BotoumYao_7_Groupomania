@@ -17,11 +17,11 @@ router.post('/signup', userCtrl.signup);
 router.post('/login', userCtrl.login);
 
 // Get one user
-router.get('/:id', auth, userCtrl.getOneUser); // myaccount
+router.get('/myaccount', auth, userCtrl.getOneUser);
 // Update user data
-router.put('/:id', auth, userCtrl.updateOneUser); // myaccount-update
+router.put('/myaccount-update', auth, userCtrl.updateOneUser);
 // Delete user account > remove from database
-router.delete('/:id', auth, userCtrl.deleteUser); // myaccount-delete
+router.delete('/myaccount-delete', auth, userCtrl.deleteUser);
 
 // Export the router (imported in app)
 module.exports = router;
