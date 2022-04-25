@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       service: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       avatar: {
