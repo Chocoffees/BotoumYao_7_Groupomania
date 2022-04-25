@@ -10,7 +10,7 @@ const models = require('../models');
 // Email format required
 const emailRegex = /^[a-zA-Z-_\.]+@[a-zA-Z\.]+[\.]+[a-z]*$/ //accept "-", space, no digit and special characters
 // Authenticate user logged with jwt > allow access to edit his data, access ressources
-//const jwthandle = require('../middlewares/jwt.handler')
+const jwthandle = require('../middlewares/jwt.handler')
 
 
 // ---------- Register new user in database: use signup function ----------
@@ -101,11 +101,7 @@ exports.login = (req, res, next) => {
                     res.status(200).json({ // return JSON obj which will contain 1 user.id
                         'id': user.id,
                         // Allow user connection with encrypted token 
-                        token: jwt.sign( // encode token: use sign()
-                            { id: user.id }, // object to serialize
-                            process.env.RANDOM_TOKEN_SECRET, // long random string (get secret key from env variable)
-                            { expiresIn: '1h' } // configuration > apply access token expiration delay (user can reconnect after "")
-                        )
+                        'token': jwthandle.generateToken(user), // token generated to authenticate user created
                     });
                 })
                 .catch(error => res.status(500).json({ error }));
@@ -116,29 +112,31 @@ exports.login = (req, res, next) => {
 
 // ---------- Access to One user data: use getOneUser function ----------
 exports.getOneUser = (req, res, next) => {
+    // Authorize user with jwt
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
 
-    const id = req.params.id;
-
-    models.User.findByPk(id)
+    models.User.findByPk(userId)
         .then(user => {
             console.log(user);
             res.status(200).json({ user })
         })
         .catch(error => res.status(400).json({ error }));
 };
-// --------------------- > something wrong: another id/user retrieved? use findOne({ where: {id:id} })? > resolved
-// --------------------- > findByPk(id) not working > resolved
+// --------------------- > findByPk(id) not working > resolved and now working with correct arguments > can get userId
 
 
 // ---------- Update user data: use updateOneUser function ----------
 exports.updateOneUser = (req, res, next) => {
+    // Authorize user with jwt > edit account
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
 
-    const id = req.params.id;
     const username = req.body.username;
     const avatar = req.body.avatar;
     const service = req.body.service;
 
-    models.User.findByPk(id)
+    models.User.findByPk(userId)
         .then(user => {
             console.log(user);
             if (!user) {  // if can not find user
@@ -154,20 +152,21 @@ exports.updateOneUser = (req, res, next) => {
         })
         .catch(error => res.status(500).json({ error }));
 };
-// --------------------- > something wrong to check with token: implement user logged authenticated (getOneUser to deleteUser)
+// --------------------- > something wrong to check with token: implement user logged authenticated (getOneUser to deleteUser) > done
 
 
 // ---------- Remove user: use deleteUser function calling 'destroy' ----------
 exports.deleteUser = (req, res, next) => {
+    // Authorize user with jwt > delete account
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
 
-    const id = req.params.id;
-
-    models.User.findOne({ where: { id: req.params.id } })
+    models.User.findOne({ where: { id: userId } })
         .then(user => {
             if (!user) {  // if can not find user
                 return res.status(401).json({ error: 'Deletion not possible, user not found in database' });
             }
-            models.User.destroy({ where: { id: req.params.id } })
+            models.User.destroy({ where: { id: userId } })
             return res.status(200).json({ message: 'User removed from database' })
         })
         .catch(error => res.status(500).json({ error }));
