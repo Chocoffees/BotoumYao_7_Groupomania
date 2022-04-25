@@ -3,6 +3,7 @@ const express = require('express');
 
 // Import routers
 const userRoutes = require('./routes/user');
+const postRoutes = require('./routes/post');
 
 // Create Express application
 const app = express();
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 
 // Save routes
 app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
 
 // Export the application
 module.exports = app;

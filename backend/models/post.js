@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});  
   
   // Post have owner
-  // Referencing table posts (id_post_owner) to users table (iduser)
+  // Referencing table posts (id_post_owner) to users table (id)
   Post.associate = function(models) {
     // define associations
     Post.belongsTo(models.User);
