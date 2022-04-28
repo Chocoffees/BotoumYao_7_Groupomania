@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_post_owner: {
+      userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
@@ -18,12 +18,12 @@ module.exports = {
           key: 'id'
         }
       },
-      date: {
+      title: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      title: {
-        allowNull: false,
+      content: {
+        allowNull: true,
         type: Sequelize.STRING
       },
       attachment: {

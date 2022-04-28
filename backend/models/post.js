@@ -3,9 +3,8 @@
 // Create a Post model to represent posts table in database Groupomania
 module.exports = (sequelize, DataTypes) => {
   const Post = sequelize.define('Post', {
-    id_post_owner: DataTypes.INTEGER,
-    date: DataTypes.DATEONLY,
     title: DataTypes.STRING,
+    content: DataTypes.STRING,
     attachment: DataTypes.STRING,
     likes: DataTypes.INTEGER
   }, {});  
