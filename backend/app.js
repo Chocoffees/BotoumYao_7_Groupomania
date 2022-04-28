@@ -1,6 +1,9 @@
 // Import Express
 const express = require('express');
 
+// Import Node 'path' module > give access to the path of our file system
+const path = require('path');
+
 // Import routers
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
@@ -27,6 +30,9 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
+
+// Set middleware > specify folder in charge to serve static files (images)
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Save routes
 app.use('/api/users', userRoutes);
