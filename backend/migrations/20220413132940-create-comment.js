@@ -10,7 +10,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_post_commented: {
+      userId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        }
+      },
+      postId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
@@ -18,12 +26,8 @@ module.exports = {
           key: 'id'
         }
       },
-      date: {
-        allowNull: false,
-        type: Sequelize.DATEONLY
-      },
       content: {
-        allowNull: true,
+        allowNull: false,
         type: Sequelize.STRING
       },
       createdAt: {

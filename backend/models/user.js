@@ -11,10 +11,11 @@ module.exports = (sequelize, DataTypes) => {
     admin: DataTypes.BOOLEAN
   }, {});
   
-  // User can have several posts (1:n)
+  // User can have several posts (1:n), comments
   User.associate = function(models) {
         // define association
         User.hasMany(models.Post);
+        User.hasMany(models.Comment);
       };
     
   return User;
