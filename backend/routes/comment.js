@@ -12,15 +12,16 @@ const auth = require('../middlewares/auth');
 // Create controller > associate functions to different routes
 const comCtrl = require('../controllers/comment');
 
+// ------- In this version: clarify routes to identify post ------- 
 // Comment routes
-// Create comment
-router.post('/new', auth, comCtrl.createComment);
+// Create comment -- identify post to be commented
+router.post('/post/:postId', auth, comCtrl.createComment);
 // Access to all comments
-//router.get('/', auth, comCtrl.getAllComments);
-// Access to one comment
+router.get('/post/:postId', auth, comCtrl.getAllComments);
+// Access to one comment - necessary?
 //router.get('/:id', auth, comCtrl.getOneComment);
 // Delete comment
-//router.delete('/:id', auth, comCtrl.deleteComment);
+router.delete('/post/:id', auth, comCtrl.deleteComment);
 
 // Export the router (imported in app)
 module.exports = router;

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     Comment.belongsTo(models.Post);
     Comment.belongsTo(models.User);
 
-    models.User.belongsToMany(models.Post, {
+   /* models.User.belongsToMany(models.Post, {
       through: models.Comment,
       foreignKey: 'userId',
       otherKey: 'postId',
@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       through: models.Comment,
       foreignKey: 'postId',
       otherKey: 'userId',
-    });
+    });*/
   };
 
   return Comment;
