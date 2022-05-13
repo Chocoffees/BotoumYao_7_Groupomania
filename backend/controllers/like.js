@@ -57,4 +57,24 @@ exports.likePost = (req, res, next) => {
                 })
         })
         .catch(error => res.status(500).json({ error }));
+
+
+        models.Like.findOne({
+            where: { userId: userId, postId: req.params.postId }
+        })
+            .then(r => {
+                res.status(400).json({ error: 'test' })
+                if (!r) {
+                    models.Like.destroy({ where: {postId: req.params.postId}})
+                    return res.status(200).json({ message: 'Like destroyed' })
+                }
+                
+
+            })
+            .catch(error => res.status(500).json({ error }));
+
+
+
+
+
 }
