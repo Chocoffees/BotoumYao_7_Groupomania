@@ -81,12 +81,12 @@ exports.signup = (req, res) => {
 // ---------- Connect user to app: use login function ----------
 exports.login = (req, res, next) => {
 
-    const email = req.body.email;
+    const username = req.body.username;
     const password = req.body.password;
 
     // Search user in database: use findOne() method
     models.User.findOne({
-        where: { email: email }
+        where: { username: username }
     })
         .then(user => {
             if (!user) {  // if can not find user
