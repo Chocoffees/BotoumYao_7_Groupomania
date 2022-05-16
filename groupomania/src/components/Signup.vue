@@ -1,7 +1,6 @@
 <!-- Create component 'Signup' > Implement Groupomania User registration -->
 
 <template>
-
   <div class="registration">
     <img
       class="icon"
@@ -13,7 +12,8 @@
     <!-- Registration form -->
     <!-- Implement function 'sendRegistrationData' for submission -->
     <!-- Include v-model directive in order to bind form input elements -->
-    <form @submit.prevent="sendRegistrationData"> <!-- (prevent: page won't refresh) -->
+    <form @submit.prevent="sendRegistrationData">
+      <!-- (prevent: page won't refresh) -->
       <!-- {{ form }} (for test data entries)-->
       <div class="form-group">
         <label for="email">Email: </label>
@@ -24,6 +24,7 @@
           placeholder="Saisissez ici votre email"
           required
         />
+        <p class="assistance">{{ emailError }}</p>
       </div>
 
       <div class="form-group">
@@ -35,6 +36,7 @@
           placeholder="Saisissez votre mot de passe"
           required
         />
+        <p class="assistance">{{ passwordError }}</p>
       </div>
 
       <div class="form-group">
@@ -46,6 +48,7 @@
           placeholder="Saisissez un username"
           required
         />
+        <p class="assistance">{{ usernameError }}</p>
       </div>
 
       <div class="form-group">
@@ -57,13 +60,10 @@
           placeholder="Nom de votre service (facultatif)"
         />
       </div>
-      
+
       <div class="form__submit">
         <!-- (submit the form) -->
-        <button
-          type="submit" 
-          aria-label="créer un compte"
-        >
+        <button type="submit" aria-label="créer un compte">
           CREER UN COMPTE
         </button>
       </div>
@@ -74,24 +74,51 @@
       <router-link to="/users/login">Me connecter</router-link>
     </p>
   </div>
-
 </template>
 
 <script>
 // Import 'axios' > perform API requests (used to send/get data from API)
 import axios from "axios";
 
+// Handle inputs validation > use 'VeeValidate' library 
+import { useForm, useField } from "vee-validate";
+// Add 'Yup' (schema builder) for expected data
+import * as yup from "yup";
+
 export default {
   name: "sign-up",
-  // Retrieve user data from input form once fiels completed
-  data() {
+
+  setup() {
+    // Define validation schema
+    const schema = yup.object({
+      email: yup.string().required().email(),
+      password: yup.string().required().min(6),
+      username: yup.string().required().min(3),
+      service: yup.string(),
+    });
+
+    // Create form context with the validation schema
+    useForm({
+      validationSchema: schema,
+    });
+
+    const { value: email, errorMessage: emailError } 
+    = useField("email");
+    const { value: password, errorMessage: passwordError } 
+    = useField("password");
+    const { value: username, errorMessage: usernameError }
+    = useField("username");
+    const { value: service }
+    = useField("service");
+
     return {
-      //form: {
-      email: "",
-      password: "",
-      username: "",
-      service: "",
-      // }
+      email,
+      emailError,
+      password,
+      passwordError,
+      username,
+      usernameError,
+      service,
     };
   },
 
@@ -125,7 +152,7 @@ export default {
 <style scoped>
 
 .registration {
-    margin-top: 40px;
+  margin-top: 40px;
 }
 
 .icon {
@@ -158,7 +185,11 @@ export default {
 .registration input:focus {
   border: 2px solid #d1515a;
   font-weight: bold;
-  outline:none !important;
+  outline: none !important;
+}
+.assistance {
+  color: orange;
+  margin-top: 0;
 }
 .registration button {
   width: 230px;
@@ -173,7 +204,7 @@ export default {
   text-align: center;
 }
 .registration button:active {
-  transform: scale(0.96)
+  transform: scale(0.96);
 }
 .registration p {
   font-size: 0.8em;

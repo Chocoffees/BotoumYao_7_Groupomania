@@ -2,61 +2,59 @@
 
 <template>
   <div class="container">
-  <div class="login">
-    <img
-      class="icon"
-      alt="Icône du logo Groupomania"
-      src="../assets/icon.png"
-    />
-    <h1>Ravis de vous revoir !</h1>
+    <div class="login">
+      <img
+        class="icon"
+        alt="Icône du logo Groupomania"
+        src="../assets/icon.png"
+      />
+      <h1>Ravis de vous revoir !</h1>
 
-    <!-- Login form -->
-    <form @submit.prevent="logUser"> <!-- (prevent: page won't refresh) -->
-      <div class="form-group">
-        <label for="username">Username: </label>
-        <input
-          type="text"
-          v-model="username"
-          id="username"
-          placeholder="Saisissez un username"
-          required
-        />
-      </div>
+      <!-- Login form -->
+      <form @submit.prevent="logUser">
+        <!-- (prevent: page won't refresh) -->
+        <div class="form-group">
+          <label for="username">Username: </label>
+          <input
+            type="text"
+            v-model="username"
+            id="username"
+            placeholder="Saisissez un username"
+            required
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="password">Password: </label>
-        <input
-          type="password"
-          v-model="password"
-          id="password"
-          placeholder="Saisissez votre mot de passe"
-          required
-        />
-      </div>
-      
-      <div class="form__submit">
-        <!-- Implement function 'logUser' at click -->
-        <button
-          type="submit"
-          aria-label="créer un compte"
-        >
-          JE ME CONNECTE
-        </button>
-      </div>
-    </form>
+        <div class="form-group">
+          <label for="password">Password: </label>
+          <input
+            type="password"
+            v-model="password"
+            id="password"
+            placeholder="Saisissez votre mot de passe"
+            required
+          />
+        </div>
 
-    <p>
-      Pas de compte ?
-      <router-link to="/users/signup">Créer un compte</router-link>
-    </p>
+        <div class="form__submit">
+          <!-- Implement function 'logUser' at click -->
+          <button type="submit" aria-label="créer un compte">
+            JE ME CONNECTE
+          </button>
+        </div>
+      </form>
+
+      <p>
+        Pas de compte ?
+        <router-link to="/users/signup">Créer un compte</router-link>
+      </p>
+    </div>
   </div>
-  </div>
-
 </template>
 
 <script>
-// Import 'axios' > perform API requests (used to send/get data from API)
-import axios from "axios";
+
+// Use logIn action (implemented in auth module)
+import { mapActions } from "vuex";
 
 export default {
   // Module name
@@ -66,34 +64,35 @@ export default {
     return {
       username: "",
       password: "",
-    }
+    };
   },
- 
+
   methods: {
-    // Call function implemented 'logUser()' > submit the login form > get current user logged in 
-    async logUser() {
-      const response = await axios
-      .post("http://localhost:8080/api/users/login", {
+    ...mapActions({
+      // spread logIn action here from auth module
+      logIn: "auth/logIn",
+    }),
+    // Call function implemented on submit form > retrieve user data + token
+    logUser() {
+      this.logIn({
         username: this.username,
-        password: this.password
+        password: this.password,
       });
-      //console.log(response); (test ok: token obtained)
+      //(test ok: data retrieved :)
 
       // Store token in ls once user logged in
-      localStorage.setItem('token', response.data.token);
+      //localStorage.setItem('token', response.data.token);
       // --> new user is now logged in and will redirect to Homepage
-      this.$router.push({ name: "HomePage" });
+      //this.$router.push({ name: "HomePage" });
     },
   },
 };
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 .login {
-    margin-top: 40px;
+  margin-top: 40px;
 }
 
 .icon {
@@ -126,7 +125,7 @@ export default {
 .login input:focus {
   border: 2px solid #d1515a;
   font-weight: bold;
-  outline:none !important;
+  outline: none !important;
 }
 .login button {
   width: 230px;
@@ -141,7 +140,7 @@ export default {
   text-align: center;
 }
 .login button:active {
-  transform: scale(0.96)
+  transform: scale(0.96);
 }
 .login p {
   font-size: 0.8em;
@@ -151,5 +150,4 @@ export default {
   font-weight: bold;
   font-size: 1em;
 }
-
 </style>

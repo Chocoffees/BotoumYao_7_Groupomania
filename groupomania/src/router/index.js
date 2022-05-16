@@ -21,6 +21,11 @@ const routes = [
     name: 'log-in',
     component: Login
   },
+  {
+    path: '/users/myaccount',
+    name: '',
+    //component: 
+  },
 
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
