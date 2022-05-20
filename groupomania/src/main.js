@@ -1,13 +1,11 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-// 'VeeValidate': handle inputs form
-//import VeeValidate from 'vee-validate';
-// 'axios': allow requests
-//import axios from 'axios';
-// axios config default (set a base URL)
-//axios.defaults.baseURL = 'http://localhost:8084/api'
 // import store: allow access the data/state inside in a component
 import store from './store';
+require('@/store/member_config')
+// Configure user re-authentication > use token saved locally
+// -> Dispatch 'configAuth' action
+store.dispatch('auth/configAuth', localStorage.getItem('token'))
 
 createApp(App).use(router).use(store).mount('#app')

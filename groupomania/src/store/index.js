@@ -1,5 +1,3 @@
-// NOT USED at this step
-
 // Handle centralized data to share it in whole app 
 // Create a store > define shared state
 

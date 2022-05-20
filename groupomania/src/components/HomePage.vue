@@ -1,32 +1,52 @@
 <!-- Create component 'HomePage' -->
 
 <template>
-  
-<h1>(HomePage) - Bienvenue sur votre réseau 😃</h1>
-<!-- to check! -->
-<!--<h1 v-if="user">(HomePage) - Bienvenue sur votre réseau {{ user.username }} 😃</h1>-->
-<!--<h1 v-if="!user"(HomePage) - Bienvenue sur le réseau Groupomania 😃</h1>-->
-<nav>
-<router-link to="/">J'accède au forum</router-link>
-</nav>
+  <template v-if="isAuthenticated">
+    <!-- to check! -->
+    <h1>(HomePage User connecté) - Bonjour {{ user.user.username }} 👋</h1>
+    <h2>Que fait-on aujourd'hui ?</h2>
+    <nav>
+      <router-link to="/posts/new">Je partage un contenu</router-link>
+    </nav>
 
+    <nav>
+      <router-link to="/">J'accède au forum</router-link>
+    </nav>
+  </template>
+
+  <template v-else>
+    <h1>(HomePage) - Bienvenue sur votre réseau 😃</h1>
+    <h2>Partagez, exprimez-vous en quelques clics !</h2>
+
+    <nav>
+      <router-link to="/users/signup"
+        >Je créé mon compte maintenant !</router-link
+      >
+    </nav>
+  </template>
 </template>
 
 <script>
 // @ is an alias to /src
 //import SignUp from '@/components/SignUp.vue'
 // Import 'axios' > perform API requests (used to send/get data from API)
-import axios from "axios";
+//import axios from "axios";
+
+// Getters from auth module
+import { mapGetters } from "vuex";
 
 export default {
   name: "HomePage",
-  data() {
-    return {
-      user: ""
-    }
+
+  computed: {
+    ...mapGetters({
+      isAuthenticated: "auth/isAuthenticated",
+      user: "auth/user",
+    }),
   },
-  // Implement token authentication > get current user logged
-  async connected() {
+};
+// Implement token authentication > get current user logged
+/*async connected() {
     const response = await axios.get('user', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token')
@@ -35,14 +55,11 @@ export default {
     this.user = response.data;
       console.log(response);
     
-  }
-  
-}
+  }*/
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 .welcome {
   background-color: rgb(209 81 90 / 10%);
 }
