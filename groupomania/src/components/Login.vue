@@ -83,7 +83,7 @@ export default {
       // Store token in ls once user logged in
       //localStorage.setItem('token', response.data.token);
       // --> new user is now logged in and will redirect to Homepage
-      //this.$router.push({ name: "HomePage" });
+      this.$router.push({ name: "HomePage" });
     },
   },
 };
