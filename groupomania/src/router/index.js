@@ -5,6 +5,7 @@ import Login from '../components/Login.vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import AddNewPost from '../components/AddNewPost.vue';
 import UpdatePost from '../components/UpdatePost.vue';
+import ListOfPosts from '../components/ListOfPosts.vue';
 
 
 // Define routes
@@ -38,6 +39,11 @@ const routes = [
     path: '/posts/:id',
     name: 'UpdatePost',
     component: UpdatePost 
+  },
+  {
+    path: '/posts',
+    name: 'ListOfPosts',
+    component: ListOfPosts 
   },
 
     // route level code-splitting

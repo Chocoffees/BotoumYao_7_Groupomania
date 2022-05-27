@@ -1,10 +1,10 @@
-<!-- Create component 'AddNewPost' > Allow user to share post -->
+<!-- Create component 'UpdatePost' > Allow user to update post-->
 
 <template>
-  <h1>(AddNewPost) - Ajoutez une publication</h1>
+<h1>(UpdatePost) - Modifiez une publication</h1>
 
-  <div class="creation">
-    <form @submit.prevent="sharePost">
+<div class="edit">
+    <form @submit.prevent="editPost">
       <!-- (prevent: page won't refresh) -->
       <div class="form-group">
         <label for="title">Titre</label>
@@ -34,7 +34,6 @@
           type="file"
           @change="onFileChange"
           id="attachment"
-          ref="attachment"
           name="attachment"
           accept="image/jpg, image/jpeg, image/png, image/gif"
           placeholder="Joindre un fichier"
@@ -45,59 +44,83 @@
 
       <div class="form__submit">
         <!-- (submit the form) -->
-        <button type="submit" aria-label="partager ma publication">
-          C'EST PARTI !
+        <button type="submit" onclick="alert('Publication modifiée avec succès !')" aria-label="modifier ma publication">
+          MODIFIER MA PUBLICATION
         </button>
       </div>
     </form>
   </div>
+
+  <nav>
+      <router-link to="/posts">Retour au forum</router-link>
+    </nav>
+
 </template>
 
 <script>
+// @ is an alias to /src
 // Import 'axios' > perform API requests (used to send/get data from API)
 import axios from "axios";
 
 export default {
-  name: "AddNewPost",
+  name: "UpdatePost",
   data() {
     return {
       title: "",
       content: "",
       attachment: "",
-    };
+    }
   },
 
   methods: {
-    onFileChange(event) {
-      console.log(event); // see selected file properties
-      this.attachment = event.target.files[0];
-    },
-    // Call function 'sharePost()' > submit post creation form
-    sharePost() {
-      const postData = new FormData();
+
+    /********* Function 'editPost' review in progress: handle errors *********/
+
+    // Call function 'editPost()'
+    async editPost() {
+       
+      const upData = new FormData();
       
-      postData.append("title", this.title),
-      postData.append("content", this.content),
-      postData.append("attachment", this.attachment);
-      // Perform here POST request: use 'axios'
-      axios
-        .post("http://localhost:8080/api/posts/new", postData)
+      upData.append("title", this.title),
+      upData.append("content", this.content),
+      upData.append("attachment", this.attachment);
+      // Perform here PUT request: use 'axios'
+      await axios
+        .put('http://localhost:8080/api/posts/' + this.$route.params.id, upData)
+        // `http://localhost:8080/api/posts/${id}` > can not be used?
         .then(function (response) {
           console.log(response);
         })
         .catch(function (error) {
           console.log(error);
         });
-        // --> user has now created post ready to publish and will be redirect to forum (ListOfPosts)
+        // --> user has now updated post to publish and will be redirect to forum (ListOfPosts)
         this.$router.push({ name: "ListOfPosts" });
-    },
+    }
+    
   },
-};
+
+  async mounted() {
+    // path: '/posts/:id'
+    const result = await axios
+    .get('http://localhost:8080/api/posts/' + this.$route.params.id); 
+    console.log(this.$route.params.id); // return post id selected from 'ListOfPosts' ok
+    //console.log(result);
+    console.log('je suis là 😀');
+    console.log(result.data); // return post data ok
+    
+    // Retrieve data to update
+    this.title = result.data.post.title;
+    this.content = result.data.post.content;
+    this.attachment = result.data.post.attachment;
+  },
+}
 
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 .welcome {
   background-color: rgb(209 81 90 / 10%);
 }
@@ -114,7 +137,7 @@ nav a {
 nav a.router-link-exact-active {
   color: #42b983;
 }
-.creation {
+.edit{
   display: flex;
   justify-content: center;
   margin-top: 40px;
@@ -122,7 +145,7 @@ nav a.router-link-exact-active {
 .icon {
   width: 130px;
 }
-.creation h1 {
+.edit h1 {
   color: #132644;
   font-size: large;
 }
@@ -138,14 +161,14 @@ nav a.router-link-exact-active {
   padding: 5px 5px 70px 5px;
   width: 400px;
 }
-.creation label {
+.edit label {
   color: #132644;
   font-size: medium;
   font-weight: bold;
   margin-bottom: 10px;
   position: absolute;
 }
-.creation input {
+.edit input {
   width: 400px;
   height: 35px;
   border: 1px solid transparent;
@@ -156,7 +179,7 @@ nav a.router-link-exact-active {
   outline: 0;
   text-align: left;
 }
-.creation input:focus {
+.edit input:focus {
   border: 2px solid #d1515a;
   font-weight: bold;
   outline: none !important;
@@ -165,8 +188,8 @@ nav a.router-link-exact-active {
   color: orange;
   margin-top: 0;
 }
-.creation button {
-  width: 200px;
+.edit button {
+  width: 320px;
   background-image: linear-gradient(
     rgb(189 25 25) 0,
     rgb(255 255 255 / 30%) 100%
@@ -184,7 +207,7 @@ nav a.router-link-exact-active {
   text-align: center;
   transition: all 0.3s;
 }
-.creation button:active {
+.edit button:active {
   transform: scale(0.96);
 }
 </style>

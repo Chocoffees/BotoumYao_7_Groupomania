@@ -10,7 +10,7 @@
     </nav>
 
     <nav>
-      <router-link to="/">J'accède au forum</router-link>
+      <router-link to="/posts">J'accède au forum</router-link>
     </nav>
   </template>
 
