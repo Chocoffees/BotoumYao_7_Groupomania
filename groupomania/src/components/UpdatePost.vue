@@ -10,7 +10,7 @@
         <label for="title">Titre</label>
         <input
           type="text"
-          v-model="title"
+          v-model="post.title"
           id="title"
           placeholder="Titre de votre publication"
           required
@@ -22,7 +22,7 @@
         <label for="content">Description</label>
         <textarea
           type="text"
-          v-model="content"
+          v-model="post.content"
           id="content"
           placeholder="Exprimez-vous"
         />
@@ -44,8 +44,9 @@
 
       <div class="form__submit">
         <!-- (submit the form) -->
-        <button type="submit" onclick="alert('Publication modifiée avec succès !')" aria-label="modifier ma publication">
+        <button type="submit"  aria-label="modifier ma publication">
           MODIFIER MA PUBLICATION
+          <!--onclick="alert('Publication modifiée avec succès !')"-->
         </button>
       </div>
     </form>
@@ -66,23 +67,30 @@ export default {
   name: "UpdatePost",
   data() {
     return {
-      title: "",
-      content: "",
-      attachment: "",
+      post: {
+        title: "",
+        content: "",
+        attachment: ""
+      }
     }
   },
 
   methods: {
 
-    /********* Function 'editPost' review in progress: handle errors *********/
-
+    /********* Function 'editPost' reviewed *********/
+    onFileChange(event) {
+      console.log(event); // see selected file properties
+      this.attachment = event.target.files[0];
+      console.log(this.attachment); // return files properties ok
+    },
     // Call function 'editPost()'
     async editPost() {
-       
+      console.log(this.post); // return new data entered ok
+      // Perform here PUT request: use 'axios'
       const upData = new FormData();
       
-      upData.append("title", this.title),
-      upData.append("content", this.content),
+      upData.append("title", this.post.title),
+      upData.append("content", this.post.content),
       upData.append("attachment", this.attachment);
       // Perform here PUT request: use 'axios'
       await axios
@@ -96,8 +104,23 @@ export default {
         });
         // --> user has now updated post to publish and will be redirect to forum (ListOfPosts)
         this.$router.push({ name: "ListOfPosts" });
+      
+      /********** also works ***********/
+      /*axios
+        .put('http://localhost:8080/api/posts/'+ this.$route.params.id, {
+          title: this.post.title,
+          content: this.post.content,
+          attachment: this.post.attachment
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+        // --> user has now updated post to publish and will be redirect to forum (ListOfPosts)
+        this.$router.push({ name: "ListOfPosts" });*/
     }
-    
   },
 
   async mounted() {
@@ -110,9 +133,11 @@ export default {
     console.log(result.data); // return post data ok
     
     // Retrieve data to update
-    this.title = result.data.post.title;
+    this.post = result.data.post;
+    console.log(this.post);
+    /*this.title = result.data.post.title;
     this.content = result.data.post.content;
-    this.attachment = result.data.post.attachment;
+    this.attachment = result.data.post.attachment;*/
   },
 }
 

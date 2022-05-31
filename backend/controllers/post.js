@@ -147,11 +147,12 @@ exports.updatePost = (req, res, next) => {
                     console.log(error)
                     res.status(400).json({ error: 'Post update failed' })
                 })
+                .catch(error => {
+                    console.log(error.response)
+                    res.status(500).json({ error: 'Server error' })
+                })
         })
-        .catch(error => {
-            console.log(error)
-            res.status(500).json({ error: 'Server error' })
-        })
+        
 };
 
 
@@ -174,6 +175,13 @@ exports.deletePost = (req, res, next) => {
                 models.Post.destroy({ where: { id: req.params.id } })
                 return res.status(200).json({ message: 'Post destroyed, attachment remove from database and in local' })
             })
-                .catch(error => res.status(500).json({ error }));
+            .catch(error => {
+                console.log(error)
+                res.status(400).json({ error: 'Post deletion failed' })
+            })
+            .catch(error => {
+                console.log(error.response)
+                res.status(500).json({ error: 'Server error' })
+            })
         })
 }

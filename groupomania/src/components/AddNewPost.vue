@@ -34,7 +34,7 @@
           type="file"
           @change="onFileChange"
           id="attachment"
-          ref="attachment"
+          ref="file"
           name="attachment"
           accept="image/jpg, image/jpeg, image/png, image/gif"
           placeholder="Joindre un fichier"
@@ -71,16 +71,17 @@ export default {
     onFileChange(event) {
       console.log(event); // see selected file properties
       this.attachment = event.target.files[0];
+      console.log(this.attachment); // return files properties ok
     },
     // Call function 'sharePost()' > submit post creation form
-    sharePost() {
+    async sharePost() {
       const postData = new FormData();
       
       postData.append("title", this.title),
       postData.append("content", this.content),
       postData.append("attachment", this.attachment);
       // Perform here POST request: use 'axios'
-      axios
+      await axios
         .post("http://localhost:8080/api/posts/new", postData)
         .then(function (response) {
           console.log(response);

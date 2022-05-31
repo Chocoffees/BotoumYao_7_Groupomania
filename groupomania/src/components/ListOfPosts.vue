@@ -19,14 +19,16 @@
       </router-link>
       <!-- to check! -->
       <!--<button @click="editPost" aria-label="modifier ma publication" title="Modifier" class="post-edit">✏️</button>-->
+      <router-link :to="'/posts'">
       <button
-        @click="deletePost"
+        @click="deletePost(post.id, post.UserId)"
         aria-label="supprimer ma publication"
         title="Supprimer"
         class="post-delete"
       >
         ❌
       </button>
+      </router-link>
     </div>
 
     <div class="post-content">
@@ -51,17 +53,36 @@ export default {
       }
     },
 
+    methods: {
+    /*editPost() { 
+      this.$router.push(`/posts/${id}`);  
+      },*/
+    // Call function 'deletePost()'
+    // Check post before action
+    async deletePost(id, UserId) {
+      let postToDelete = id;
+      let postOwner = UserId;
+      console.log('Ready to ❌ > Post n°', postToDelete, '- User:', postOwner);
+
+      if(confirm('ℹ️ La supression du message est irréversible. Voulez-vous continuer ?')) {
+        await axios.delete("http://localhost:8080/api/posts/" + id);
+        console.log('Post n°', id, 'now destroyed')
+        .then(function (response) {
+            console.log(response);
+            window.location.reload();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+    }
+  },
+
   async mounted() {
     const result = await axios.get("http://localhost:8080/api/posts");
     console.log(result);
     this.posts = result.data.posts;
     console.log(this.posts);
-  },
-
-  methods: {
-    /*editPost() { 
-      this.$router.push(`/posts/${id}`);  
-      },*/
   },
 };
 
