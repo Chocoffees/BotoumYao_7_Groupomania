@@ -6,6 +6,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AddNewPost from '../components/AddNewPost.vue';
 import UpdatePost from '../components/UpdatePost.vue';
 import ListOfPosts from '../components/ListOfPosts.vue';
+import Comment from '../components/Comment.vue';
 
 
 // Define routes
@@ -44,6 +45,11 @@ const routes = [
     path: '/posts',
     name: 'ListOfPosts',
     component: ListOfPosts 
+  },
+  {
+    path: '/comments/post/:postId',
+    name: 'post-interact',
+    component: Comment
   },
 
     // route level code-splitting
