@@ -1,21 +1,17 @@
 // Imports
-import HomePage from '../components/HomePage.vue';
 import Signup from '../components/Signup.vue';
 import Login from '../components/Login.vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import AddNewPost from '../components/AddNewPost.vue';
 import UpdatePost from '../components/UpdatePost.vue';
 import ListOfPosts from '../components/ListOfPosts.vue';
-import Comment from '../components/Comment.vue';
-
+import Admin from '../components/Admin.vue';
+import AccountUser from '../components/AccountUser.vue';
+import UpdateAccountUser from'../components/UpdateAccountUser.vue';
+import Assistance from'../components/Assistance.vue';
 
 // Define routes
 const routes = [
-  {
-    path: '/',
-    name: 'HomePage',
-    component: HomePage
-  },
   {
     path: '/users/signup',
     name: 'sign-up',
@@ -28,8 +24,18 @@ const routes = [
   },
   {
     path: '/users/myaccount',
-    name: '',
-    //component: 
+    name: 'AccountUser',
+    component: AccountUser 
+  },
+  {
+    path: '/users/myaccount/update/:id',
+    name: 'UpdateAccountUser',
+    component: UpdateAccountUser
+  },
+  {
+    path: '/users',
+    name: 'AdminPage',
+    component: Admin 
   },
   {
     path: '/posts/new',
@@ -47,9 +53,9 @@ const routes = [
     component: ListOfPosts 
   },
   {
-    path: '/comments/post/:postId',
-    name: 'post-interact',
-    component: Comment
+    path: '/',
+    name: 'app-assistance',
+    component: Assistance
   },
 
     // route level code-splitting

@@ -1,9 +1,9 @@
 <!-- html code -->
 <template>
-  <div id="app">
+  <div id="app" >
+    <!-- A VOIR A LA FIN :style="{ 'background-image': 'url(' + require('./assets/social-media-gdj_pixabay.png') + ')' }" -->
     <!-- list using components -->
     <Nav />
-
     <div>
       <router-view />
     </div>
@@ -59,18 +59,38 @@ export default {
 }
 
 .nav > .nav-links > ul li a {
-  color: #c64d55;
+  color: #c64d55; 
   display: block;
   font-size: 18px;
   line-height: 40px;
-  padding: 0 15px;
+  padding: 0 20px;
   text-decoration: none;
 }
 
 .nav > .nav-links > ul li a:hover {
   color: #fff;
 }
-
+.user-icon {
+  color: brown; 
+  height: 25px; 
+  padding-right: 5px;
+}
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+}
+.logout-icon {
+  color: darkgreen; 
+  cursor: pointer; 
+  height: 27px;
+}
+.logout-icon:hover {
+  color: brown;
+}
 .nav > .nav-links > ul {
   list-style: none;
   margin-top: 5px;
@@ -107,8 +127,8 @@ export default {
 
   .nav > .nav-btn > label {
     display: inline-block;
-    height: 50px;
-    padding: 13px;
+    height: 30px;
+    padding: 10px;
   }
 
   .nav > .nav-btn > label:hover,
