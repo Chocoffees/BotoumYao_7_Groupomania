@@ -10,10 +10,12 @@
     </div>
     <div class="nav-links">
       <ul>
-        <li class="user_connected">👤{{ user.user.username }}</li>
-        <li><router-link :to="{ name: 'HomePage' }">Accueil</router-link></li>
-        <li><a href="#" target="_blank">Assistance</a></li>
-        <li><a href="#" target="_blank">Déconnexion</a></li>
+        <li><router-link :to="{ name: 'ListOfPosts' }">Accueil</router-link></li>
+        <li v-if="user.user.admin == true"><router-link :to="{ name: 'AdminPage' }">Administration</router-link></li>
+        <li v-if="user.user.admin == false"><router-link :to="{ name: 'AccountUser' }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user']" />{{ user.user.username }}</router-link></li>
+        <li v-if="user.user.admin == true"><router-link :to="{ name: 'AccountUser' }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user-gear']" />{{ user.user.username }}</router-link></li>
+        <li><router-link :to="{ name: 'app-assistance' }">Assistance</router-link></li>
+        <button @click="logOut" class="logout-btn"><font-awesome-icon class="logout-icon" :icon="['fas', 'right-from-bracket']" /></button>
       </ul>
     </div>
     <div class="nav-btn">
@@ -34,11 +36,10 @@
     </div>
     <div class="nav-links">
       <ul>
-        <li><router-link :to="{ name: 'HomePage' }">Accueil</router-link></li>
         <li><router-link :to="{ name: 'sign-up' }">Créer un compte</router-link></li>
         <li><router-link :to="{ name: 'log-in' }">Se connecter</router-link></li>
-        <li><a href="#" target="_blank">Assistance</a></li>
-        <li><a href="#" target="_blank">Déconnexion</a></li>
+        <li><router-link :to="{ name: 'app-assistance' }">Assistance</router-link></li>
+        <button class="logout-btn"><font-awesome-icon class="logout-icon" :icon="['fas', 'right-from-bracket']" /></button>
       </ul>
     </div>
     <div class="nav-btn">
@@ -66,11 +67,24 @@ export default {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
         user: 'auth/user',
-      })
+      }),
     },
-}
-</script>
 
+    methods: {
+    // ---------- Logout user: call function 'logOut()' and redirection to login page ----------
+      logOut() {
+        let action = confirm("ℹ️ Cher Membre, vous allez être déconnecté. Continuer ?");
+        if (action == true) {
+          localStorage.removeItem('token');
+          this.$router.push('/users/login');
+          console.log("User now logged out")
+          window.location.reload()
+          document.location = '/users/login'
+        }
+      },
+    },
+};
+</script>
 
 <style>
 </style>

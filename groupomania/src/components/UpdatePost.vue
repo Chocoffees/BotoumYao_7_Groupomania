@@ -1,7 +1,7 @@
 <!-- Create component 'UpdatePost' > Allow user to update post-->
 
 <template>
-<h1>(UpdatePost) - Modifiez une publication</h1>
+<h1>Modifiez une publication</h1>
 
 <div class="edit">
     <form @submit.prevent="editPost">
@@ -44,7 +44,7 @@
 
       <div class="form__submit">
         <!-- (submit the form) -->
-        <button type="submit"  aria-label="modifier ma publication">
+        <button type="submit"  aria-label="modifier ma publication" title="Modifier ma publication">
           MODIFIER MA PUBLICATION
           <!--onclick="alert('Publication modifiée avec succès !')"-->
         </button>
@@ -53,7 +53,7 @@
   </div>
 
   <nav>
-      <router-link to="/posts">Retour au forum</router-link>
+      <router-link to="/posts"><font-awesome-icon :icon="['fas', 'rotate-left']" /> Retour au forum</router-link>
     </nav>
 
 </template>
@@ -86,16 +86,19 @@ export default {
     // Call function 'editPost()'
     async editPost() {
       console.log(this.post); // return new data entered ok
-      // Perform here PUT request: use 'axios'
+      
       const upData = new FormData();
       
       upData.append("title", this.post.title),
       upData.append("content", this.post.content),
       upData.append("attachment", this.attachment);
+
+      alert("ℹ️ Modification de votre publication prise en compte.")
+
       // Perform here PUT request: use 'axios'
       await axios
         .put('http://localhost:8080/api/posts/' + this.$route.params.id, upData)
-        // `http://localhost:8080/api/posts/${id}` > can not be used?
+        // note: `http://localhost:8080/api/posts/${id}` > can be also used with a variable
         .then(function (response) {
           console.log(response);
         })
@@ -145,23 +148,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-.welcome {
-  background-color: rgb(209 81 90 / 10%);
-}
-.welcome img {
-  width: 30%;
-}
-nav {
-  padding: 30px;
-}
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 .edit{
   display: flex;
   justify-content: center;
@@ -232,7 +218,22 @@ nav a.router-link-exact-active {
   text-align: center;
   transition: all 0.3s;
 }
+.edit button:hover {
+  background-color: bisque;
+}
 .edit button:active {
   transform: scale(0.96);
+}
+nav {
+  padding: 30px;
+}
+nav a {
+  color: blue;
+  padding-bottom: 5px;
+  text-decoration: none;
+}
+nav a:hover {
+  border-bottom: 2px solid blue;
+  font-weight: bold;
 }
 </style>

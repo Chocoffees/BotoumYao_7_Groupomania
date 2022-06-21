@@ -1,8 +1,9 @@
 <!-- Create component 'AddNewPost' > Allow user to share post -->
 
 <template>
-  <h1>(AddNewPost) - Ajoutez une publication</h1>
-
+  <h1>Ajoutez une publication</h1>
+  <p class="info">Restez courtois et ne partagez pas de contenu illégal.</p>
+  
   <div class="creation">
     <form @submit.prevent="sharePost">
       <!-- (prevent: page won't refresh) -->
@@ -51,6 +52,11 @@
       </div>
     </form>
   </div>
+
+  <nav>
+      <router-link to="/posts"><font-awesome-icon :icon="['fas', 'rotate-left']" /> Retour au forum</router-link>
+    </nav>
+
 </template>
 
 <script>
@@ -80,6 +86,9 @@ export default {
       postData.append("title", this.title),
       postData.append("content", this.content),
       postData.append("attachment", this.attachment);
+      
+      alert("Publication créée avec succès 👏")
+      
       // Perform here POST request: use 'axios'
       await axios
         .post("http://localhost:8080/api/posts/new", postData)
@@ -99,21 +108,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.welcome {
-  background-color: rgb(209 81 90 / 10%);
-}
-.welcome img {
-  width: 30%;
-}
-nav {
-  padding: 30px;
-}
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-nav a.router-link-exact-active {
-  color: #42b983;
+.info {
+  font-size: 0.9em;
+  color: blueviolet;
 }
 .creation {
   display: flex;
@@ -185,7 +182,22 @@ nav a.router-link-exact-active {
   text-align: center;
   transition: all 0.3s;
 }
+.creation button:hover {
+  background-color: bisque;
+}
 .creation button:active {
   transform: scale(0.96);
+}
+nav {
+  padding: 30px;
+}
+nav a {
+  color: blue;
+  padding-bottom: 5px;
+  text-decoration: none;
+}
+nav a:hover {
+  border-bottom: 2px solid blue;
+  font-weight: bold;
 }
 </style>

@@ -1,18 +1,30 @@
-<!-- Create component 'ListOfPosts' > Access to shared posts -->
+<!-- Create component 'ListOfPosts' > Access to shared posts including comments -->
 
 <template>
-  <h1>(ListOfPosts) Quoi de neuf aujourd'hui ?</h1>
+  <h1>📰 Les news de votre réseau</h1>
+  <p class="intro">Envie de partager un contenu ?</p>
+  <button
+    @click="addPost"
+    aria-label="ajouter une publication"
+    title="Ajouter une publication"
+    class="add-btn"
+  >
+    CLIQUEZ-MOI 😀
+  </button>
+
   <!-- render list of posts -->
   <div class="post" v-for="post in posts" v-bind:key="post.id">
     <div class="post-header">
-      <img src="../assets/Mee.png" alt="Avatar miniature" /><strong>{{
-        post.User.username
-      }}</strong
-      ><br />
-      <p>- mis à jour le {{ post.updatedAt }}</p>
+      <div class="post-identity">
+        <!--{{ post.User.avatar }}
+        <div>{{ post.User.avatar }}</div>-->
+        <font-awesome-icon class="picture" :icon="['fas', 'circle-user']" />
+        <p class="username">{{ post.User.username }}</p>
+        <p class="post-date">- mis à jour le {{ post.updatedAt }}</p>
+      </div>
 
-      <!-- once user is logged: show available functions > edit & delete -->
-      <div v-if="user.user.id == post.UserId">
+      <!-- once user/app moderator is logged: show available functions > edit & delete -->
+      <div v-if="user.user.id == post.UserId || user.user.admin == true" class="post-functions">
         <button
           @click="editPost(post.id)"
           aria-label="modifier ma publication"
@@ -54,20 +66,20 @@
       <form @submit.prevent="createComment(post.id)">
         <div class="form-group-comment-content">
           <div class="comment-header">
-            <img src="../assets/Mee.png" alt="Avatar miniature" />
+            <font-awesome-icon class="picture-s" :icon="['fas', 'circle-user']" />
             <textarea
               type="text"
               v-model="content"
               id="content"
-              placeholder="Ajoutez un commentaire"
+              placeholder="Ajoutez ici un commentaire"
               required
             />
-
+            <!-- possibility to re initialize input -->
             <button
               type="button"
               @click="cancelComment()"
               aria-label="annuler la saisie de mon commentaire"
-              title="Annuler"
+              title="Annuler ma saisie"
               class="comment-cancel"
             >
               <font-awesome-icon :icon="['fas', 'eraser']" />
@@ -76,38 +88,35 @@
 
           <div class="form__submit">
             <!-- (submit the form) -->
-            <button type="submit" aria-label="ajouter mon commentaire">
+            <button type="submit" aria-label="ajouter mon commentaire" title="Ajouter mon commentaire">
               AJOUTER MON COMMENTAIRE
             </button>
           </div>
         </div>
       </form>
-
+      
+      <!-- render list of comment(s) -->
       <div v-for="comment in comments" v-bind:key="comment.id">
         <div class="comments" v-if="comment.postId === post.id">
           <div class="comment-header">
-            <img src="../assets/Mee.png" alt="Avatar miniature" /><strong>{{
-              comment.User.username
-            }}</strong>
-            <p>- le {{ comment.createdAt }}</p>
+            <font-awesome-icon class="picture-s" :icon="['fas', 'circle-user']" />
+            <strong>{{ comment.User.username }}</strong>
+            <p>- le {{ comment.createdAt }} <strong> a écrit :</strong></p>
+            <!-- post-comment: allow user to delete his comment -->
+            <div v-if="comment.userId == user.user.id">
+              <button
+                @click.prevent="deleteComment(comment.id)"
+                aria-label="supprimer mon commentaire"
+                title="Supprimer mon commentaire"
+                class="comment-delete"
+              >
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
+              </button>
+            </div>
           </div>
-          <br />
           <div class="comment-content">
             {{ comment.content }}
           </div>
-
-          <!-- post-comment: allow user to delete his comment -->
-          <div v-if="comment.userId == user.user.id">
-            <button
-              @click="deleteComment(comment.id)"
-              aria-label="supprimer mon commentaire"
-              title="Supprimer"
-              class="post-delete"
-            >
-              <font-awesome-icon :icon="['fas', 'trash-can']" />
-            </button>
-          </div>
-          
         </div>
       </div>
     </div>
@@ -140,10 +149,16 @@ export default {
         postId: "",
         content: "",
       },
+      content: "",
     };
   },
 
   methods: {
+    // ---------- Add post: call function 'addPost()' > direct user to 'AddNewPost' ----------
+    addPost() {
+      this.$router.push({ name: "AddNewPost" });
+    },
+    
     // ---------- Update post: call function 'editPost()' > direct user to 'updatePost' ----------
     editPost(id) {
       let actualPost = id;
@@ -164,10 +179,10 @@ export default {
         )
       ) {
         await axios.delete("http://localhost:8080/api/posts/" + id);
-        console.log("Post n°", id, "now destroyed")
+        console.log("Post n°", id, "now destroyed");
+        window.location.reload()
           .then(function (response) {
             console.log(response);
-            window.location.reload();
           })
           .catch(function (error) {
             console.log(error);
@@ -178,37 +193,65 @@ export default {
     // ---------- Create comment: call function 'createComment()' ----------
     async createComment(postId) {
       let postToComment = postId;
-      let content = this.contentOfComment;
+      let content = this.content;
 
       console.log("Post n°", postToComment, "ready for 🗫");
-      console.log(postId, this.user.user.id, this.content);
+      console.log(postId, "👤:", this.user.user.id, "📝:", content);
 
-      if (content !== "") {
-        console.log("Comment added 👏 >", this.content);
-
+      if (this.content !== "") {
+        console.log("Comment that will be added >", content);
+      }
+      let askToPublish = confirm(
+        "ℹ️ Votre commentaire va maintenant être publié."
+      );
+      if (askToPublish == true) {
         // Perform here POST request: use 'axios'
-        await axios
-          .post("http://localhost:8080/api/comments/post/" + postId, {
+        const res = await axios.post(
+          "http://localhost:8080/api/comments/post/" + postId,
+          {
             userId: this.user.user.id,
             postId: postId,
             content: this.content,
-          })
-          .then(function (response) {
-            console.log("Status:", response.status);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+          }
+        );
+        console.log(res);
+        console.log(res.data);
+        console.log("Comment added 👏");
+
+        this.content = "";
+
+        // ---------- > get comments for each post ----------
+        // -> Sort the list of comments like posts: last created at the top of the list > relevant info to user
+        // Perform here GET request: use 'axios'
+        const result = await axios.get(
+          "http://localhost:8080/api/comments/post/" + postId,
+          {
+            userId: this.user.user.id,
+            postId: postId,
+            content: this.content,
+          }
+        );
+
+        console.log(result); // return array including all comments ok (data>comments)
+        this.comments = result.data.comments.slice().reverse();
+        console.log(this.comments); // return comments properties ok
+
+      } else if (askToPublish == false) {
+        console.log(
+          "Comment not takes in account and not registered in database."
+        );
+        this.content = "";
       }
     },
 
     // ---------- Cancel comment: call function 'cancelComment()' ----------
     async cancelComment() {
+      console.log("👁️ dataBeforeCancel:", this.content);
       this.content = "";
-      console.log(this.content);
     },
 
     // ---------- Get comments for each post: call function 'accessComment()' ----------
+    // -> Sort the list of comments like posts: last created at the top of the list > relevant info to user
     async accessComment(postId) {
       let postToComment = postId;
 
@@ -224,19 +267,9 @@ export default {
         }
       );
       console.log(result); // return array including all comments ok (data>comments)
-      this.comments = result.data.comments;
-      console.log(this.comments) // return comments properties ok
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      this.comments = result.data.comments.slice().reverse();
+      console.log(this.comments); // return comments properties ok
     },
-  
-  // >> return all comments but still appear an error:
-  // 'ListOfPosts.vue?70c1:226 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'then')'
-  // --- to fix! ---
 
     // ---------- Delete comment: call function 'deleteComment()' ----------
     async deleteComment(id) {
@@ -247,105 +280,129 @@ export default {
         confirm(
           "ℹ️ La supression du commentaire est irréversible. Voulez-vous continuer ?"
         )
-        ) {
+      ) {
         // path: '/post/:id'
         await axios.delete("http://localhost:8080/api/comments/post/" + id);
-          console.log("Comment n°", id, "now destroyed")
-          .then(function (response) {
-            console.log(response); 
-            window.location.reload();
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-        }
-    },
+        console.log("Comment n°", id, "now destroyed");
 
-  // >> comment selected delete - check db ok but still appear an error:
-  //'ListOfPosts.vue?70c1:252 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'then')
-  // --- to fix! ---
+        window.location.reload();
+      }
+    },
 
   },
 
+  // ---------- Get all posts created ----------
+  // -> Sort the list of messages: last created at the top of the list > relevant info to user
   async mounted() {
+    if (localStorage.getItem('token')) {
+     console.log('User connected');
+    }
+    // memo to resolve loop reload before axios request: https://stackoverflow.com/a/50214060
+    if (localStorage.getItem('reloaded')) {
+      localStorage.removeItem('reloaded');
+    } else {
+      localStorage.setItem('reloaded', '1');
+      location.reload();
+    }
     const result = await axios.get("http://localhost:8080/api/posts");
     console.log(result);
-    this.posts = result.data.posts;
+    this.posts = result.data.posts.slice().reverse();
+    //console.log(this.posts.slice(2, 5)); // test rendering on selection: expected results ok
     console.log(this.posts);
+    
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.welcome {
-  background-color: rgb(209 81 90 / 10%);
+h1 {
+  margin-top: 50px
 }
-.welcome img {
-  width: 30%;
-}
-
-nav {
-  padding: 30px;
-}
-
-nav a {
+.intro {
+  color: darkviolet;
+  font-size: large;
   font-weight: bold;
-  color: #2c3e50;
+}
+.add-btn {
+  width: 170px;
+    background-image: linear-gradient( rgb(189 25 25) 0, rgb(255 255 255 / 30%) 100% );
+    background-color: #d1515a;
+    border: 1px solid;
+    box-shadow: rgb(189 25 25 / 40%) 1px 4px 5px 2px;
+    color: white;
+    cursor: pointer;
+    font-size: medium;
+    font-weight: bold;
+    opacity: 1;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.add-btn:hover {
+  background-color: bisque;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 /* ----- post ----- */
 .post {
   border: 1px solid transparent;
   box-shadow: rgb(189 25 25 / 30%) 3px 5px 5px 4px;
   box-sizing: border-box;
-  margin: 0 auto 30px auto;
+  margin: 30px auto 30px auto;
   width: 80vh;
 }
 .post-header {
+  display: flex;
+  justify-content: space-between;
+}
+.post-identity {
   align-items: center;
   display: flex;
   padding: 15px 5px 5px 15px;
 }
-.post-header > img {
-  height: 50px;
+.picture {
+  color: darkslateblue;
+  height: 40px;
   margin-right: 5px;
-  width: 50px;
+  width: 40px;
 }
-.post-header > p {
+.post-identity > p.username {
+  font-weight: bold;
+  font-size: medium;
+  margin-left: 5px;
+}
+.post-identity > p.post-date {
   color: gray;
   font-size: smaller;
   margin-left: 5px;
 }
-/*.post-header > button {
-  background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2em;
-}*/
+.test {
+  display: flex;
+  justify-content: space-between;
+}
+.post-functions {
+  display: flex;
+  padding-right: 15px;
+}
 .post-edit {
   background: none;
   border: none;
+  color: limegreen;
   cursor: pointer;
   font-size: 1.2em;
-  margin-left: 200px;
 }
 .post-edit:hover {
-  background-color: bisque;
-  border-radius: 5px;
+  color: black;
 }
 .post-delete {
   background: none;
   border: none;
+  color: darkred;
   cursor: pointer;
   font-size: 1.2em;
 }
 .post-delete:hover {
-  background-color: bisque;
-  border-radius: 5px;
+  color: black;
 }
 .post-content {
   padding: 15px 15px;
@@ -388,11 +445,6 @@ nav a.router-link-exact-active {
 }
 
 /* ----- comment ----- */
-.comment .comments {
-  display: flex;
-  margin: 0 auto 20px auto;
-  width: 80vh;
-}
 .comment-header {
   align-items: center;
   display: flex;
@@ -408,10 +460,11 @@ nav a.router-link-exact-active {
   font-size: smaller;
   margin-left: 5px;
 }
-.comment-header > img {
-  height: 30px;
+.picture-s {
+  color: darkslateblue;
+  height: 25px;
   margin-right: 5px;
-  width: 30px;
+  width: 25px;
 }
 .form-group-comment-content textarea {
   border: 1px solid transparent;
@@ -436,6 +489,7 @@ nav a.router-link-exact-active {
 }
 .comment-cancel:hover {
   background-color: bisque;
+  border: 1px solid #d1515a;
   border-radius: 5px;
 }
 .comment .form__submit > button {
@@ -457,7 +511,7 @@ nav a.router-link-exact-active {
   text-align: center;
   transition: all 0.3s;
 }
-.comment button:hover {
+.comment .form__submit > button:hover {
   background-color: bisque;
 }
 .comment button:active {
@@ -466,18 +520,25 @@ nav a.router-link-exact-active {
 .comment-header-list {
   border: 1;
 }
+.comment-delete {
+  background: none;
+  border: none;
+  color: darkred;
+  cursor: pointer;
+  font-size: 1.2em;
+  margin-left: 50px;
+}
+.comment-delete:hover {
+  color: black;
+}
 .comment-content {
-  border: 1px solid transparent;
-  box-shadow: rgb(189 25 25 / 30%) 5px 5px 2px;
-  box-sizing: border-box;
   color: #132644;
   font-family: sans-serif;
+  font-size: 0.9em;
   height: 30px;
   margin-left: 5px;
-  outline: 0;
   padding-left: 7px;
   padding-top: 5px;
-  resize: none;
   width: 200px;
 }
 </style>

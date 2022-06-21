@@ -135,13 +135,15 @@ export default {
       axios
         .post("http://localhost:8080/api/users/signup", userData)
         .then(function (response) {
-          console.log(response);
+          console.log(response.data);
         })
         .catch(function (error) {
-          console.log(error);
+          console.log(error.message);
         });
+
+        alert('Félicitations 🎉 Votre compte a été créé avec succès !')
       // --> new user is now added to database Groupomania and will redirect to Homepage
-      this.$router.push({ name: "HomePage" });
+      this.$router.push({ name: "ListOfPosts" });
     },
   },
 };
@@ -152,13 +154,20 @@ export default {
 <style scoped>
 
 .registration {
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .icon {
-  width: 130px;
+  width: 90px;
 }
-
+@media (max-width: 750px) {
+  .icon {
+    width: 50px;
+  }
+  .registration {
+   margin-top: 10px;
+  }
+}
 .registration h1 {
   color: #132644;
   font-size: large;

@@ -82,8 +82,8 @@ export default {
 
       // Store token in ls once user logged in
       //localStorage.setItem('token', response.data.token);
-      // --> new user is now logged in and will redirect to Homepage
-      this.$router.push({ name: "HomePage" });
+      // --> new user is now logged in and will redirect to the forum
+      this.$router.push({ name: "ListOfPosts" });
     },
   },
 };
@@ -92,13 +92,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .login {
-  margin-top: 40px;
+  margin-top: 20px;
 }
-
 .icon {
-  width: 130px;
+  width: 90px;
 }
-
 .login h1 {
   color: #132644;
   font-size: large;
