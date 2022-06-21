@@ -52,6 +52,10 @@ exports.signup = (req, res) => {
                     avatar: avatar,
                     admin: admin
                 })
+                .then(() => res.status(201).json({
+                    message: 'User created with success!',
+                    username, email,
+                }))
                     .catch(error => {
                         console.log(error)
                         res.status(409).json({ error: 'Username already used' })
@@ -170,4 +174,24 @@ exports.deleteUser = (req, res, next) => {
             return res.status(200).json({ message: 'User removed from database' })
         })
         .catch(error => res.status(500).json({ error }));
+};
+
+
+// ---------- Access to All users (> admin): use getAllUsers function ----------
+exports.getAllUsers = (req, res, next) => {
+    // Authorize user with jwt
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
+
+    models.User.findAll({
+        order: [
+            ['createdAt', 'DESC']
+        ],
+        attributes: ['id', 'email', 'username', 'service', 'avatar', 'admin', 'createdAt']
+    })
+        .then(users => {
+            console.log(users);
+            res.status(200).json({ users })
+        })
+        .catch(error => res.status(400).json({ error }));
 }

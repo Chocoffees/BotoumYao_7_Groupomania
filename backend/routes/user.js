@@ -19,9 +19,11 @@ router.post('/login', userCtrl.login);
 // Get one user
 router.get('/myaccount', auth, userCtrl.getOneUser);
 // Update user data
-router.put('/myaccount-update', auth, userCtrl.updateOneUser);
+router.put('/myaccount-update/:id', auth, userCtrl.updateOneUser);
 // Delete user account > remove from database
-router.delete('/myaccount-delete', auth, userCtrl.deleteUser);
+router.delete('/myaccount-delete/:id', auth, userCtrl.deleteUser);
+// Get all users
+router.get('/', auth, userCtrl.getAllUsers);
 
 // Export the router (imported in app)
 module.exports = router;
