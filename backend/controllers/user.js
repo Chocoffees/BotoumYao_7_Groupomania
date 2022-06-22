@@ -7,10 +7,12 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 // Import models created 
 const models = require('../models');
+const User = require('../models/User')
 // Email format required
 const emailRegex = /^[a-zA-Z-_\.]+@[a-zA-Z\.]+[\.]+[a-z]*$/ //accept "-", space, no digit and special characters
 // Authenticate user logged with jwt > allow access to edit his data, access ressources
 const jwthandle = require('../middlewares/jwt.handler')
+const { Op } = require("sequelize");
 
 
 // ---------- Register new user in database: use signup function ----------
@@ -140,21 +142,18 @@ exports.updateOneUser = (req, res, next) => {
     const avatar = req.body.avatar;
     const service = req.body.service;
 
-    models.User.findByPk(userId)
-        .then(user => {
-            console.log(user);
-            if (!user) {  // if can not find user
-                return res.status(401).json({ error: 'User not found in database' });
-            }
-            user.update({
-                username: username,
-                avatar: avatar,
-                service: service,
-            })
+    
+    User.update(
+        {
+            username: username,
+            avatar: avatar,
+            service: service,
+        },
+        { where: { id: userId} }
+    )
                 .then(user => res.status(200).json({ user }))
-                .catch(error => res.status(400).json({ error: 'Username is already in use, it must be unique' }));
-        })
-        .catch(error => res.status(500).json({ error }));
+        
+                .catch(error => res.status(500).json({  error}));
 };
 // --------------------- > something wrong to check with token: implement user logged authenticated (getOneUser to deleteUser) > done
 
@@ -164,13 +163,24 @@ exports.deleteUser = (req, res, next) => {
     // Authorize user with jwt > delete account
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
-
+    const id = req.params.id;
+    
+    // to delete user also by an admin > use Op.or ? 
+                //Models.User.findAll({
+                    //where: {
+                        //[Op.or]: [
+                        //{ id: userId },
+                        //{ admin: 1 }
+                        //]
+                    //}
+                    //})
     models.User.findOne({ where: { id: userId } })
         .then(user => {
+            console.log(user);
             if (!user) {  // if can not find user
                 return res.status(401).json({ error: 'Deletion not possible, user not found in database' });
             }
-            models.User.destroy({ where: { id: userId } })
+            models.User.destroy({ where: { id: id } })
             return res.status(200).json({ message: 'User removed from database' })
         })
         .catch(error => res.status(500).json({ error }));
