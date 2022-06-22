@@ -12,8 +12,8 @@
       <ul>
         <li><router-link :to="{ name: 'ListOfPosts' }">Accueil</router-link></li>
         <li v-if="user.user.admin == true"><router-link :to="{ name: 'AdminPage' }">Administration</router-link></li>
-        <li v-if="user.user.admin == false"><router-link :to="{ name: 'AccountUser' }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user']" />{{ user.user.username }}</router-link></li>
-        <li v-if="user.user.admin == true"><router-link :to="{ name: 'AccountUser' }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user-gear']" />{{ user.user.username }}</router-link></li>
+        <li v-if="user.user.admin == false"><router-link :to="{ name: 'AccountUser', params:{ id: user.user.id } }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user']" />{{ user.user.username }}</router-link></li>
+        <li v-if="user.user.admin == true"><router-link :to="{ name: 'AccountUser', params:{ id: user.user.id } }" class="user_connected">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user-gear']" />{{ user.user.username }}</router-link></li>
         <li><router-link :to="{ name: 'app-assistance' }">Assistance</router-link></li>
         <button @click="logOut" class="logout-btn"><font-awesome-icon class="logout-icon" :icon="['fas', 'right-from-bracket']" /></button>
       </ul>

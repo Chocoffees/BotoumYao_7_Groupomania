@@ -73,11 +73,12 @@ export default {
       logIn: "auth/logIn",
     }),
     // Call function implemented on submit form > retrieve user data + token
-    logUser() {
-      this.logIn({
+    async logUser() {
+      await this.logIn({
         username: this.username,
         password: this.password,
       });
+    //console.log('test');
       //(test ok: data retrieved :)
 
       // Store token in ls once user logged in

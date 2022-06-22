@@ -6,7 +6,7 @@
   <div class="edit">
     <form @submit.prevent="updateUserData">
       <!-- (prevent: page won't refresh) -->
-      <div class="form-group">
+      <!--<div class="form-group">
         <label for="email">Email</label>
         <input
           type="email"
@@ -15,7 +15,7 @@
           placeholder="Votre email"
           required
         />
-      </div>
+      </div>-->
       
       <div class="form-group">
         <label for="username">Username</label>
@@ -64,7 +64,7 @@
   </div>
 
   <nav>
-      <router-link to="/users/myaccount"><font-awesome-icon :icon="['fas', 'rotate-left']" /> Revenir à mon compte</router-link>
+      <router-link :to="'/users/myaccount/' + user.id" ><font-awesome-icon :icon="['fas', 'rotate-left']" /> Revenir à mon compte</router-link>
     </nav>
 
 </template>
@@ -78,6 +78,7 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "UpdateAccountUser",
+  props: ['id'],
 
   computed: {
     ...mapGetters({
@@ -107,35 +108,41 @@ export default {
      async updateUserData() {
       console.log(this.user); // return new data entered ok
       
-      const upUserData = new FormData();
+      /*const upUserData = new FormData();
       
-      upUserData.append("email", this.user.email),
       upUserData.append("username", this.user.username),
       upUserData.append("service", this.user.service),
-      upUserData.append("avatar", this.avatar);
+      upUserData.append("avatar", this.avatar);*/
 
       // Perform here PUT request: use 'axios'
       await axios
-        .put('http://localhost:8080/api/users/myaccount-update/' + this.$route.params.id, upUserData)
+        .put('http://localhost:8080/api/users/myaccount/'+this.$route.params.id, {
+          username: this.user.username,
+          service: this.user.service,
+          avatar: this.avatar
+        })
         
         .then(function (response) {
           console.log(response.data);
+          alert("ℹ️ Vos informations ont été mises à jour.")
+        // --> user has now updated his data and will be redirect
+        this.$router.push({ name: "AccountUser" });
         })
         .catch(function (error) {
           console.log(error);
         });
 
-        alert("ℹ️ Vos informations ont été mises à jour.")
-        // --> user has now updated his data and will be redirect
-        this.$router.push({ name: "AccountUser" });
+        
     }
     },
   
 
   // ---------- Retrieve user data ----------
   async mounted() {
-    const result = await axios.get('http://localhost:8080/api/users/myaccount');
-    console.log(result);
+    const result = await axios.get("http://localhost:8080/api/users/myaccount/" + this.$route.params.id);
+    console.log(this.$route.params.id);
+    console.log(result.data); // return user{} ok
+  
     this.user = result.data.user;
     console.log(this.user); // ok :)
   },

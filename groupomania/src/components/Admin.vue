@@ -73,7 +73,7 @@ export default {
       console.log("Ready to ❌ > member n°", memberToDelete);
 
       if (confirm("ℹ️ Le compte de cet employé va être supprimé.")) {
-        await axios.delete("http://localhost:8080/api/users/myaccount-delete/" + id);
+        await axios.delete("http://localhost:8080/api/users/myaccount/" + id);
         console.log("Member account n°", id, "now destroyed");
 
         alert("ℹ️ Le compte est maintenant supprimé.")

@@ -294,7 +294,7 @@ export default {
   // ---------- Get all posts created ----------
   // -> Sort the list of messages: last created at the top of the list > relevant info to user
   async mounted() {
-    if (localStorage.getItem('token')) {
+    /*if (localStorage.getItem('token')) {
      console.log('User connected');
     }
     // memo to resolve loop reload before axios request: https://stackoverflow.com/a/50214060
@@ -303,7 +303,7 @@ export default {
     } else {
       localStorage.setItem('reloaded', '1');
       location.reload();
-    }
+    }*/
     const result = await axios.get("http://localhost:8080/api/posts");
     console.log(result);
     this.posts = result.data.posts.slice().reverse();

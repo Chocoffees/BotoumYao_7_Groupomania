@@ -39,12 +39,13 @@ export default {
         // 1- hit logIn: use dispatch function
         async logIn({ dispatch }, credentials) {
             const response = await axios.post("http://localhost:8080/api/users/login", credentials)
-            //console.log(response.data); ok :)
+            console.log(response.data);
+            
             dispatch('configAuth', response.data.token) // dispatch 'configAuth' action
         },
         // 2- after sucess login > commit a mutation to store the token
         async configAuth({ commit, state }, token) {
-            //console.log(token); test
+            console.log(token);
             if (token) {
             commit('config_Token', token)
             }
@@ -53,9 +54,9 @@ export default {
             }
             // 3- before request to next path: handle Authorization headers via 'member_config'
 
-            // 4- send a request to path: '/users/myaccount' with Bearer
+            // 4- send a request to path: '/users/myaccount/:id' with Bearer
             try {
-                const response = await axios.get("http://localhost:8080/api/users/myaccount")
+                const response = await axios.get("http://localhost:8080/api/users/myaccount/:id")
                 // commit user data retrieved from previously request to store
                 commit('config_User', response.data)
 

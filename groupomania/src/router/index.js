@@ -23,12 +23,13 @@ const routes = [
     component: Login
   },
   {
-    path: '/users/myaccount',
+    path: '/users/myaccount/:id',
     name: 'AccountUser',
-    component: AccountUser 
+    component: AccountUser
+    //props: true, // usage à vérifier 
   },
   {
-    path: '/users/myaccount/update/:id',
+    path: '/users/myaccount-update/:id',
     name: 'UpdateAccountUser',
     component: UpdateAccountUser
   },

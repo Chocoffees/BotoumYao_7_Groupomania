@@ -3,7 +3,7 @@
 <template>
   <h1>Mon compte</h1>
 
-  <div class="user-card">
+  <div class="user-card"> <!-- add this? v-for="user in account" v-bind:key="user.id" -->
     {{ user.avatar }}
     <table>
       <thead>
@@ -82,7 +82,7 @@ export default {
       console.log("user.id:", userId);
       console.log(this.user) // return new data entered ok
       // --> user will be direct to update form
-      this.$router.push(`/users/myaccount/update/${id}`);
+      this.$router.push(`/users/myaccount-update/${id}`);
     },
 
     // ---------- Delete user: call function 'deletePost()' ----------
@@ -94,7 +94,7 @@ export default {
 
       if (confirm("⚠️ Cher Membre, votre compte va être supprimé. Confirmer ?")) {
 
-        await axios.delete("http://localhost:8080/api/users/myaccount-delete/" + id);
+        await axios.delete("http://localhost:8080/api/users/myaccount/" + id);
         console.log("Member account n°", id, "now destroyed");
 
         alert("ℹ️ Le compte est maintenant supprimé.")
@@ -105,9 +105,9 @@ export default {
     },
   },
 
-  // ---------- Retrieve all users data ----------
+  // ---------- Retrieve all user data ----------
   async mounted() {
-    const result = await axios.get("http://localhost:8080/api/users/myaccount");
+    const result = await axios.get("http://localhost:8080/api/users/myaccount/" + this.$route.params.id)
     console.log(result);
     this.user = result.data.user;
     console.log(this.user);
