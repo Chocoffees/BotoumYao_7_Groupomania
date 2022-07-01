@@ -3,8 +3,9 @@
 <template>
   <h1>Mon compte</h1>
 
-  <div class="user-card"> <!-- add this? v-for="user in account" v-bind:key="user.id" -->
-    {{ user.avatar }}
+  <div class="user-card">
+    <img :src="user.avatar" alt="Ma photo de profil" v-if="user.avatar" />
+    <font-awesome-icon class="picture" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
     <table>
       <thead>
         <tr>
@@ -29,8 +30,8 @@
     <div class="post-functions">
       <button
         @click="updateUserData(user.id)"
-        aria-label="modifier mes informations"
-        title="Modifier mes informations"
+        aria-label="mettre à jour mes informations"
+        title="Mettre à jour mes informations"
         class="post-edit"
       >
         <font-awesome-icon :icon="['fas', 'file-pen']" />
@@ -47,9 +48,8 @@
   </div>
 
   <nav>
-      <router-link to="/posts">Accès au forum <font-awesome-icon :icon="['fas', 'angles-right']" /></router-link>
+      <router-link :to="{ name: 'ListOfPosts' }">Accès au forum <font-awesome-icon :icon="['fas', 'angles-right']" /></router-link>
     </nav>
-  
 </template>
 
 
@@ -91,7 +91,6 @@ export default {
       let accountToDelete = id;
       console.log("Ready to ❌ > member n°", accountToDelete);
 
-
       if (confirm("⚠️ Cher Membre, votre compte va être supprimé. Confirmer ?")) {
 
         await axios.delete("http://localhost:8080/api/users/myaccount/" + id);
@@ -117,14 +116,22 @@ export default {
 
 <style scoped>
 h1 {
-  margin: 50px auto 50px auto;
+  margin: 50px auto 40px auto;
 }
 .user-card > img {
-  border: 1px solid transparent;
-  box-shadow: rgb(189 25 25 / 30%) 3px 5px 5px 4px;
-  box-sizing: border-box;
-  margin: 30px auto 30px auto;
-  width: 150px;
+  border-radius: 40% 0;
+  height: 120px;
+  margin-bottom: 20px;
+  width: 140px;
+}
+.picture {
+  background-color: darkslateblue;
+  border: 2px solid;
+  border-radius: 40% 0;
+  color: #fff;
+  height:100px;
+  margin-bottom: 20px;
+  width: 140px;  
 }
 .post-functions {
   margin: 30px auto 30px auto;

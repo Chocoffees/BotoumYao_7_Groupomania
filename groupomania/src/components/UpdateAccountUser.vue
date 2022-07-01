@@ -4,19 +4,7 @@
   <h1>Je modifie mes informations</h1>
 
   <div class="edit">
-    <form @submit.prevent="updateUserData">
-      <!-- (prevent: page won't refresh) -->
-      <!--<div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          v-model="user.email"
-          id="email"
-          placeholder="Votre email"
-          required
-        />
-      </div>-->
-      
+    <form @submit.prevent="updateUserData" enctype="multipart/form-data">
       <div class="form-group">
         <label for="username">Username</label>
         <input
@@ -39,14 +27,14 @@
       </div>
 
       <div class="form-group">
-        <label for="attachment">Insérer une image de profil (facultative) </label>
+        <label for="avatar">Insérer une image de profil</label>
         <input
           type="file"
           @change="onFileChange"
           id="avatar"
+          ref="file"
           name="avatar"
           accept="image/jpg, image/jpeg, image/png, image/gif"
-          placeholder="Insérer une image de profil"
         />
       </div>
 
@@ -64,9 +52,8 @@
   </div>
 
   <nav>
-      <router-link :to="'/users/myaccount/' + user.id" ><font-awesome-icon :icon="['fas', 'rotate-left']" /> Revenir à mon compte</router-link>
-    </nav>
-
+    <router-link :to="'/users/myaccount/' + user.id"><font-awesome-icon :icon="['fas', 'rotate-left']" /> Revenir à mon compte</router-link>
+  </nav>
 </template>
 
 
@@ -78,7 +65,6 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "UpdateAccountUser",
-  props: ['id'],
 
   computed: {
     ...mapGetters({
@@ -89,13 +75,12 @@ export default {
 
   data() {
     return {
-        user: {
-        email: "",
+      user: {
         username: "",
+        service: "",
         avatar: "",
-        service: ""
-        }
-    }
+      },
+    };
   },
 
   methods: {
@@ -105,51 +90,51 @@ export default {
       console.log(this.avatar); // return files properties ok
     },
     // ---------- Update user account: call function 'updateUserData()' ----------
-     async updateUserData() {
+    async updateUserData() {
       console.log(this.user); // return new data entered ok
-      
-      /*const upUserData = new FormData();
-      
+      // note l.112: 'this.$router' not working > 'TypeError: Cannot read properties of undefined (reading '$router')'
+      // to fix > https://stackoverflow.com/a/69666526
+      let self = this;
+
+      const upUserData = new FormData();
+
       upUserData.append("username", this.user.username),
       upUserData.append("service", this.user.service),
-      upUserData.append("avatar", this.avatar);*/
+      upUserData.append("avatar", this.avatar);
 
       // Perform here PUT request: use 'axios'
       await axios
-        .put('http://localhost:8080/api/users/myaccount/'+this.$route.params.id, {
-          username: this.user.username,
-          service: this.user.service,
-          avatar: this.avatar
-        })
-        
+        .put("http://localhost:8080/api/users/myaccount-update/" + this.$route.params.id, upUserData)
         .then(function (response) {
           console.log(response.data);
-          alert("ℹ️ Vos informations ont été mises à jour.")
-        // --> user has now updated his data and will be redirect
-        this.$router.push({ name: "AccountUser" });
+          alert("ℹ️ Vos informations ont été mises à jour.");
+          // --> user has now updated/complete his data and will be redirect
+          self.$router.push({ name: "AccountUser" });
         })
         .catch(function (error) {
           console.log(error);
         });
-
-        
-    }
     },
-  
+  },
 
   // ---------- Retrieve user data ----------
   async mounted() {
-    const result = await axios.get("http://localhost:8080/api/users/myaccount/" + this.$route.params.id);
+    const result = await axios.get(
+      "http://localhost:8080/api/users/myaccount/" + this.$route.params.id
+    );
     console.log(this.$route.params.id);
     console.log(result.data); // return user{} ok
-  
+
     this.user = result.data.user;
     console.log(this.user); // ok :)
   },
-}
+};
 </script>
 
 <style scoped>
+h1 {
+  margin-top: 50px;
+}
 .edit {
   display: flex;
   justify-content: center;
@@ -173,6 +158,11 @@ export default {
   outline: 0;
   padding: 5px 5px 70px 5px;
   width: 400px;
+}
+.assistance {
+  margin: 0 0 0 100px;
+  font-size: small;
+  color: grey;
 }
 .edit label {
   color: #132644;

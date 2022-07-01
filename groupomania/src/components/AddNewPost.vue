@@ -30,7 +30,7 @@
       </div>
 
       <div class="form-group">
-        <label for="attachment">Insérer une image</label>
+        <label for="attachment">Insérer une image (extensions autorisées : jpg, jpeg, png, gif)</label>
         <input
           type="file"
           @change="onFileChange"
@@ -108,6 +108,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+h1 {
+  margin-top: 50px;
+}
 .info {
   font-size: 0.9em;
   color: blueviolet;

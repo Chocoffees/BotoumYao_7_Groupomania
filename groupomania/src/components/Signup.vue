@@ -131,19 +131,23 @@ export default {
         username: this.username,
         service: this.service,
       };
+
+      // note l.146: 'this.$router' not working > 'TypeError: Cannot read properties of undefined (reading '$router')'
+      // to fix > https://stackoverflow.com/a/69666526
+      let self = this;
+
       // Perform here POST request: use 'axios'
       axios
         .post("http://localhost:8080/api/users/signup", userData)
         .then(function (response) {
           console.log(response.data);
+          alert('Félicitations 🎉 Votre compte a été créé avec succès ! Vous allez maintenant accéder à la page de connexion.')
+          // --> new user is now added to database Groupomania and will redirect to login page for secure access to app
+          self.$router.push('/users/login');
         })
         .catch(function (error) {
           console.log(error.message);
         });
-
-        alert('Félicitations 🎉 Votre compte a été créé avec succès !')
-      // --> new user is now added to database Groupomania and will redirect to Homepage
-      this.$router.push({ name: "ListOfPosts" });
     },
   },
 };
@@ -154,7 +158,7 @@ export default {
 <style scoped>
 
 .registration {
-  margin-top: 20px;
+  margin-top: 50px;
 }
 
 .icon {
@@ -197,7 +201,7 @@ export default {
   outline: none !important;
 }
 .assistance {
-  color: orange;
+  color: red;
   margin-top: 0;
 }
 .registration button {

@@ -1,4 +1,4 @@
-<!-- Create component 'HomePage' -->
+<!-- Create component 'Assistance' -->
 
 <template>
   <h1>Assistance</h1>
@@ -9,7 +9,6 @@
 
   <div class="assistance">
     <p class="help">
-      <font-awesome-icon class="assistance-icon" :icon="['fas', 'headset']" />
       Besoin d'aide ? Contactez-nous
     </p>
     <p class="contact">Du lundi au vendredi de 08:00 à 18:00</p>
@@ -51,14 +50,14 @@ export default {
 <!-- Add "scoped" atribute to limit CSS to this component only -->
 <style scoped>
 h1 {
-  margin: 50px auto 15px auto;
+  margin: 100px auto 30px auto;
 }
 .assistance {
   padding-top: 5px;
-  padding-bottom: 15px;
+  padding-bottom: 25px;
 }
 .help {
-  margin-top: 5px;
+  margin-top: 20px;
 }
 .assistance-icon {
   width: 30px;

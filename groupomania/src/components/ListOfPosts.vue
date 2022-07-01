@@ -16,9 +16,8 @@
   <div class="post" v-for="post in posts" v-bind:key="post.id">
     <div class="post-header">
       <div class="post-identity">
-        <!--{{ post.User.avatar }}
-        <div>{{ post.User.avatar }}</div>-->
-        <font-awesome-icon class="picture" :icon="['fas', 'circle-user']" />
+        <img :src="post.User.avatar" alt="Ma photo de profil `${user.user.username}`" v-if="post.User.avatar"/>
+        <font-awesome-icon class="picture" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
         <p class="username">{{ post.User.username }}</p>
         <p class="post-date">- mis à jour le {{ post.updatedAt }}</p>
       </div>
@@ -66,7 +65,8 @@
       <form @submit.prevent="createComment(post.id)">
         <div class="form-group-comment-content">
           <div class="comment-header">
-            <font-awesome-icon class="picture-s" :icon="['fas', 'circle-user']" />
+            <img :src="user.user.avatar" alt="Ma photo de profil" v-if="user.user.avatar" />
+            <font-awesome-icon class="picture-s" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
             <textarea
               type="text"
               v-model="content"
@@ -99,7 +99,8 @@
       <div v-for="comment in comments" v-bind:key="comment.id">
         <div class="comments" v-if="comment.postId === post.id">
           <div class="comment-header">
-            <font-awesome-icon class="picture-s" :icon="['fas', 'circle-user']" />
+            <img :src="comment.User.avatar" alt="Ma photo de profil" v-if="comment.User.avatar" />
+            <font-awesome-icon class="picture-s" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
             <strong>{{ comment.User.username }}</strong>
             <p>- le {{ comment.createdAt }} <strong> a écrit :</strong></p>
             <!-- post-comment: allow user to delete his comment -->
@@ -221,7 +222,7 @@ export default {
         this.content = "";
 
         // ---------- > get comments for each post ----------
-        // -> Sort the list of comments like posts: last created at the top of the list > relevant info to user
+        // -> Sort the list of comments posts: last created at the top of the list > relevant info to user
         // Perform here GET request: use 'axios'
         const result = await axios.get(
           "http://localhost:8080/api/comments/post/" + postId,
@@ -251,7 +252,7 @@ export default {
     },
 
     // ---------- Get comments for each post: call function 'accessComment()' ----------
-    // -> Sort the list of comments like posts: last created at the top of the list > relevant info to user
+    // -> Sort the list of comments posts: last created at the top of the list > relevant info to user
     async accessComment(postId) {
       let postToComment = postId;
 
@@ -294,22 +295,23 @@ export default {
   // ---------- Get all posts created ----------
   // -> Sort the list of messages: last created at the top of the list > relevant info to user
   async mounted() {
-    /*if (localStorage.getItem('token')) {
+    // Handle loop page reload
+    // note: 'https://stackoverflow.com/a/50214060'
+    if (localStorage.getItem('reloaded')) {
+        localStorage.removeItem('reloaded');
+    } else {
+        localStorage.setItem('reloaded', '1');
+        location.reload();
+    }
+
+    if (localStorage.getItem('token')) {
      console.log('User connected');
     }
-    // memo to resolve loop reload before axios request: https://stackoverflow.com/a/50214060
-    if (localStorage.getItem('reloaded')) {
-      localStorage.removeItem('reloaded');
-    } else {
-      localStorage.setItem('reloaded', '1');
-      location.reload();
-    }*/
     const result = await axios.get("http://localhost:8080/api/posts");
     console.log(result);
-    this.posts = result.data.posts.slice().reverse();
-    //console.log(this.posts.slice(2, 5)); // test rendering on selection: expected results ok
+    this.posts = result.data.posts;
     console.log(this.posts);
-    
+  
   },
 };
 </script>
@@ -355,16 +357,25 @@ h1 {
   display: flex;
   justify-content: space-between;
 }
+.post-identity > img {
+    border-radius: 40% 0;
+    height: 45px;
+    margin-right: 5px;
+    width: 50px;
+}
 .post-identity {
   align-items: center;
   display: flex;
   padding: 15px 5px 5px 15px;
 }
 .picture {
-  color: darkslateblue;
-  height: 40px;
-  margin-right: 5px;
-  width: 40px;
+    background-color: darkslateblue;
+    border: 2px solid;
+    border-radius: 40% 0;
+    color: #fff;
+    height: 45px;
+    margin-right: 5px;
+    width: 50px;  
 }
 .post-identity > p.username {
   font-weight: bold;
@@ -460,11 +471,20 @@ h1 {
   font-size: smaller;
   margin-left: 5px;
 }
-.picture-s {
-  color: darkslateblue;
+.comment-header > img {
+  border-radius: 40% 0;
   height: 25px;
-  margin-right: 5px;
-  width: 25px;
+  margin-right: 10px;
+  width: 30px;
+}
+.picture-s {
+  background-color: darkslateblue;
+  border: 2px solid;
+  border-radius: 40% 0;
+  color: #fff;
+  height: 25px;
+  margin-right: 10px;
+  width: 30px;  
 }
 .form-group-comment-content textarea {
   border: 1px solid transparent;

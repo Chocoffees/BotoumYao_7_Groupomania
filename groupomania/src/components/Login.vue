@@ -93,7 +93,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .login {
-  margin-top: 20px;
+  margin-top: 50px;
 }
 .icon {
   width: 90px;

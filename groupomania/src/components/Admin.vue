@@ -24,7 +24,7 @@
           <td class="id">{{ user.id }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.username }}</td>
-          <td>{{ user.avatar }}</td>
+          <td><img :src="user.avatar" alt="Photo de profil utilisateur" v-if="user.avatar" /></td>
           <td>{{ user.service }}</td>
           <td>{{ user.admin }}</td>
           <td>{{ user.createdAt }}</td>
@@ -111,6 +111,7 @@ caption {
   font-size: large;
   font-weight: bold;
   padding: 15px;
+  padding-top: 0;
 }
 /* memo: https://developer.mozilla.org/fr/docs/Web/CSS/:nth-of-type */
 tr:nth-of-type(2n) {
@@ -130,6 +131,11 @@ th {
   font-size: 0.9em;
   padding: 10px;
   text-align: center;
+}
+td > img {
+  border-radius: 10% 10%;
+  height: 50px;
+  width: 50px;
 }
 .delete {
   background: none;
