@@ -7,11 +7,13 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 // Import models created 
 const models = require('../models');
-const User = require('../models/User')
+const User = models.User;
 // Email format required
 const emailRegex = /^[a-zA-Z-_\.]+@[a-zA-Z\.]+[\.]+[a-z]*$/ //accept "-", space, no digit and special characters
 // Authenticate user logged with jwt > allow access to edit his data, access ressources
 const jwthandle = require('../middlewares/jwt.handler')
+// Import fs module > interact with file system
+const fs = require('fs');
 const { Op } = require("sequelize");
 
 
@@ -54,18 +56,18 @@ exports.signup = (req, res) => {
                     avatar: avatar,
                     admin: admin
                 })
-                .then(() => res.status(201).json({
-                    message: 'User created with success!',
-                    username, email,
-                }))
-                    .catch(error => {
-                        console.log(error)
-                        res.status(409).json({ error: 'Username already used' })
-                    })
                     .then(() => res.status(201).json({
                         message: 'User created with success!',
                         username, email,
                     }))
+                    .catch(error => {
+                        console.log(error)
+                        res.status(409).json({ error: 'Username already used' })
+                    })
+                    /*.then(() => res.status(201).json({
+                        message: 'User created with success!',
+                        username, email,
+                    }))*/
                     .catch(error => {
                         console.log(error)
                         res.status(400).json({ error: 'Creation failed' })
@@ -81,7 +83,7 @@ exports.signup = (req, res) => {
             })
     }
 
-}
+};
 
 
 // ---------- Connect user to app: use login function ----------
@@ -91,7 +93,7 @@ exports.login = (req, res, next) => {
     const password = req.body.password;
 
     // Search user in database: use findOne() method
-    models.User.findOne({
+    User.findOne({
         where: { username: username }
     })
         .then(user => {
@@ -122,7 +124,7 @@ exports.getOneUser = (req, res, next) => {
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
 
-    models.User.findByPk(userId)
+    User.findByPk(userId)
         .then(user => {
             console.log(user);
             res.status(200).json({ user })
@@ -137,23 +139,50 @@ exports.updateOneUser = (req, res, next) => {
     // Authorize user with jwt > edit account
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
-
+   
+    const id = req.params.id;
     const username = req.body.username;
     const avatar = req.body.avatar;
     const service = req.body.service;
 
-    
-    User.update(
-        {
-            username: username,
-            avatar: avatar,
-            service: service,
-        },
-        { where: { id: userId} }
-    )
-                .then(user => res.status(200).json({ user }))
+    User.findByPk(id)
+        .then(user => {
+            console.log('update', user);
+            if (!user) {  // if can not find user
+                return res.status(401).json({ error: 'User not found in database' });
+            }
+            // Check required field to valid update action
+            if (username === null) {
+                return res.status(400).json({
+                    error: 'Username missing'
+                });
+            }
+            // Handle empty field
+            if (service === null) {
+                return res.status(200).json({
+                    message: 'Nom du service facultatif'
+                });
+            }
+            user.update({
+                username: username,
+                avatar: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                service: service,
+            })
+            .then(() => res.status(200).json({ user }))
+            .catch(error => {
+                console.log(error)
+                res.status(400).json({ error: 'Update user data failed' })
+            })
+            .catch(error => {
+                console.log(error.response)
+                res.status(500).json({ error: 'Server error' })
+            })
         
-                .catch(error => res.status(500).json({  error}));
+        })
+        .catch(error => {
+            console.log(error.response)
+            res.status(500).json({ error: 'Server error' })
+        })
 };
 // --------------------- > something wrong to check with token: implement user logged authenticated (getOneUser to deleteUser) > done
 
@@ -165,16 +194,18 @@ exports.deleteUser = (req, res, next) => {
     const userId = jwthandle.getUserId(headers);
     const id = req.params.id;
     
+    /**** admin action in progress ****/
     // to delete user also by an admin > use Op.or ? 
-                //Models.User.findAll({
-                    //where: {
-                        //[Op.or]: [
-                        //{ id: userId },
-                        //{ admin: 1 }
-                        //]
-                    //}
-                    //})
-    models.User.findOne({ where: { id: userId } })
+    //Models.User.findAll({
+    //where: {
+    //[Op.or]: [
+    //{ id: userId },
+    //{ admin: 1 }
+    //]
+    //}
+    //})
+    
+    User.findOne({ where: { id: userId } })
         .then(user => {
             console.log(user);
             if (!user) {  // if can not find user
@@ -193,7 +224,7 @@ exports.getAllUsers = (req, res, next) => {
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
 
-    models.User.findAll({
+    User.findAll({
         order: [
             ['createdAt', 'DESC']
         ],

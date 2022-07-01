@@ -73,7 +73,10 @@ exports.getAllPosts = (req, res, next) => {
             {
                 model: User,
                 attributes: ['username', 'avatar']
-            }]
+            }],
+            order: [
+                ['createdAt', 'DESC']
+            ],
     })
         .then(posts => {
             console.log(posts);
