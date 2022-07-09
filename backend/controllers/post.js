@@ -9,6 +9,7 @@ const jwthandle = require('../middlewares/jwt.handler')
 require('dotenv').config()
 // Import fs module > interact with file system
 const fs = require('fs');
+const { Op } = require("sequelize");
 
 
 // ---------- Allow user to create a post: use createPost function ----------
@@ -74,9 +75,9 @@ exports.getAllPosts = (req, res, next) => {
                 model: User,
                 attributes: ['username', 'avatar']
             }],
-            order: [
-                ['createdAt', 'DESC']
-            ],
+        order: [
+            ['createdAt', 'DESC']
+        ],
     })
         .then(posts => {
             console.log(posts);
@@ -155,7 +156,7 @@ exports.updatePost = (req, res, next) => {
                     res.status(500).json({ error: 'Server error' })
                 })
         })
-        
+
 };
 
 
@@ -163,28 +164,47 @@ exports.updatePost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
 
     const id = req.params.id;
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
 
-    models.Post.findOne({
-        where: { id: id }
+    // SELECT `id`, `email`, `password`, `username`, `service`, `avatar`, `admin`, `createdAt`, `updatedAt` FROM `Users` AS `User` WHERE (`User`.`id` = xxx OR `User`.`admin` = 1);
+    models.User.findAll({
+        where: {
+            [Op.or]: [
+                { id: userId },
+                { admin: 1 }
+            ]
+        }
     })
-        .then(post => {
-            console.log(post);
-            if (!post) {  // if can not find post
+        .then(user => {
+            console.log(user);
+            if (!user) {  // if can not find user
                 return res.status(401).json({ error: 'Deletion not possible' });
+            } 
+            else if (user || user.admin == true) {
+                models.Post.findOne({ where: { id: id } })
+                    .then(post => {
+                        console.log(post);
+                        if (!post) {  // if can not find post
+                            return res.status(401).json({ error: 'Deletion not possible' });
+                        }
+                        // Handle attachment file
+                        const filename = post.attachment.split('/images/')[1];
+                        fs.unlink(`images/${filename}`, () => { // use fs.unlink() function to delete file
+                            models.Post.destroy({ where: { id: id } })
+                            models.Comment.destroy({ where: { postId: id } })
+                            models.Like.destroy({ where: { postId: id } })
+                        })
+                        res.status(200).json({ message: 'Post destroyed, attachment remove from database and in local' })
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.status(400).json({ error: 'Post deletion failed' })
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        res.status(500).json({ error: 'Server error' })
+                    })
             }
-            // Handle attachment file
-            const filename = post.attachment.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => { // use fs.unlink() function to delete file
-                models.Post.destroy({ where: { id: req.params.id } })
-                return res.status(200).json({ message: 'Post destroyed, attachment remove from database and in local' })
-            })
-            .catch(error => {
-                console.log(error)
-                res.status(400).json({ error: 'Post deletion failed' })
-            })
-            .catch(error => {
-                console.log(error.response)
-                res.status(500).json({ error: 'Server error' })
-            })
         })
 }
