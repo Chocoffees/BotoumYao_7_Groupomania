@@ -1,5 +1,5 @@
 // Interactivity
-// Allow users to like/dislike post
+// Allow users to like post > choice to not implement dislike (it may can instaure frustration for post owner)
 
 // Import models created 
 const models = require('../models');
@@ -24,15 +24,6 @@ exports.likePost = (req, res, next) => {
             if (!post) {  // if can not find post to like
                 return res.status(401).json({ error: 'Post not found in database' });
             }
-            // to check
-            /*models.Like.findOne({
-                where: { userId: userId, postId: req.params.postId }
-            })
-                .then(result => {
-                    res.status(400).json({ error: 'User already liked this post' })
-                    if (!result) {
-                        res.status(400).json({ message: 'Post not already liked by user' })
-                    }*/
             // Data entry in likes table
             models.Like.create({
                 userId: userId,
@@ -49,7 +40,7 @@ exports.likePost = (req, res, next) => {
                         })
                 })
                 .then(() => res.status(201).json({
-                    message: 'Post liked by user ' + userId,
+                    message: 'Post liked by user ' + userId + ' 😆'
                 }))
                 .catch(error => {
                     console.log(error)
@@ -57,24 +48,5 @@ exports.likePost = (req, res, next) => {
                 })
         })
         .catch(error => res.status(500).json({ error }));
-
-
-        models.Like.findOne({
-            where: { userId: userId, postId: req.params.postId }
-        })
-            .then(r => {
-                res.status(400).json({ error: 'test' })
-                if (!r) {
-                    models.Like.destroy({ where: {postId: req.params.postId}})
-                    return res.status(200).json({ message: 'Like destroyed' })
-                }
-                
-
-            })
-            .catch(error => res.status(500).json({ error }));
-
-
-
-
 
 }
