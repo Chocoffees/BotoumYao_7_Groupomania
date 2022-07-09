@@ -11,20 +11,21 @@
         </a>
     </div>
     <div class="nav-links">
+      <label for="nav-check">
+        <font-awesome-icon class="nav-icon-close" :icon="['fas', 'xmark']" />
+      </label>
       <ul>
         <li><router-link :to="{ name: 'ListOfPosts' }"><font-awesome-icon class="nav-links-icon" :icon="['fas', 'house-chimney']" />Accueil</router-link></li>
         <li v-if="user.user.admin == true"><router-link :to="{ name: 'AdminPage' }">Administration</router-link></li>
         <li v-if="user.user.admin == false"><router-link :to="{ name: 'AccountUser', params:{ id: user.user.id } }">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user']" /> {{ user.user.username }}</router-link></li>
         <li v-if="user.user.admin == true"><router-link :to="{ name: 'AccountUser', params:{ id: user.user.id } }">Mon compte <font-awesome-icon class="user-icon" :icon="['fas', 'user-gear']" /> {{ user.user.username }}</router-link></li>
         <li><router-link :to="{ name: 'app-assistance' }"><font-awesome-icon class="nav-links-icon" :icon="['fas', 'headset']" />Assistance</router-link></li>
-        <button @click="logOut" class="logout-btn"><font-awesome-icon class="logout-icon" :icon="['fas', 'right-from-bracket']" /></button>
+        <button @click="logOut" class="logout-btn"><font-awesome-icon class="logout-icon" :icon="['fas', 'right-from-bracket']" aria-label="se déconnecter" title="Se déconnecter" /></button>
       </ul>
     </div>
     <div class="nav-btn">
       <label for="nav-check">
-        <span></span>
-        <span></span>
-        <span></span>
+        <font-awesome-icon class="nav-icon" :icon="['fas', 'bars']" />
       </label>
     </div>
   </nav>
@@ -39,6 +40,9 @@
       </a>
     </div>
     <div class="nav-links">
+      <label for="nav-check">
+        <font-awesome-icon class="nav-icon-close" :icon="['fas', 'xmark']" />
+      </label>
       <ul>
         <li><router-link :to="{ name: 'sign-up' }">Créer un compte</router-link></li>
         <li><router-link :to="{ name: 'log-in' }">Se connecter</router-link></li>
@@ -48,9 +52,7 @@
     </div>
     <div class="nav-btn">
       <label for="nav-check">
-        <span></span>
-        <span></span>
-        <span></span>
+        <font-awesome-icon class="nav-icon" :icon="['fas', 'bars']" />
       </label>
     </div>
   </nav>

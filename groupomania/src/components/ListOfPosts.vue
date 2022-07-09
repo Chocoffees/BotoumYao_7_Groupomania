@@ -19,11 +19,11 @@
         <img :src="post.User.avatar" alt="Ma photo de profil `${user.user.username}`" v-if="post.User.avatar"/>
         <font-awesome-icon class="picture" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
         <p class="username">{{ post.User.username }}</p>
-        <p class="post-date">- mis à jour le {{ post.updatedAt }}</p>
+        <p class="post-date">- créé le {{ post.createdAt }}</p>
       </div>
 
       <!-- once user/app moderator is logged: show available functions > edit & delete -->
-      <div v-if="user.user.id == post.UserId || user.user.admin == true" class="post-functions">
+      <div v-if="user.user.id == post.UserId || user.user.admin == true || user.user.id !== post.UserId && user.user.admin == true" class="post-functions">
         <button
           @click="editPost(post.id)"
           aria-label="modifier ma publication"
@@ -33,7 +33,7 @@
           <font-awesome-icon :icon="['fas', 'file-pen']" />
         </button>
         <button
-          @click="deletePost(post.id, post.UserId)"
+          @click="deletePost(post.id)"
           aria-label="supprimer ma publication"
           title="Supprimer"
           class="post-delete"
@@ -49,7 +49,29 @@
       <p>{{ post.content }}</p>
       <img :src="post.attachment" />
     </div>
-
+    
+    <!-- interactivity -->
+    <div class="interactivity">
+      <button v-if="user.user.id !== post.UserId" class="like-btn"
+        @click="likePost(post.id)"
+        aria-label="cliquez-moi si vous aimez la publication"
+        title="Cliquez-moi si vous aimez la publication"
+      >
+        <font-awesome-icon class="like-icon" :icon="['fas', 'heart']" />
+      {{ post.likes }}
+      </button>
+    </div>
+    <!-- user connected can see total likes for his post > function implemented @click desactivated -->
+    <div class="interactivity">
+      <button v-if="user.user.id == post.UserId" class="like-btn"
+        aria-label="popularité de la publication"
+        title="Popularité de la publication"
+      >
+        <font-awesome-icon class="like-icon_u-connected" :icon="['fas', 'heart']" />
+      {{ post.likes }}
+      </button>
+    </div>
+    
     <!-- access post-comment(s) -->
     <button
       @click="accessComment(post.id)"
@@ -65,8 +87,7 @@
       <form @submit.prevent="createComment(post.id)">
         <div class="form-group-comment-content">
           <div class="comment-header">
-            <img :src="user.user.avatar" alt="Ma photo de profil" v-if="user.user.avatar" />
-            <font-awesome-icon class="picture-s" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
+            <font-awesome-icon class="comment-icon" :icon="['fas', 'message']" />
             <textarea
               type="text"
               v-model="content"
@@ -103,12 +124,22 @@
             <font-awesome-icon class="picture-s" :icon="['fas', 'user']" viewBox="0 0 700 300" v-else />
             <strong>{{ comment.User.username }}</strong>
             <p>- le {{ comment.createdAt }} <strong> a écrit :</strong></p>
-            <!-- post-comment: allow user to delete his comment -->
+            <!-- post-comment: allow user/moderator to delete his/any comment -->
             <div v-if="comment.userId == user.user.id">
               <button
                 @click.prevent="deleteComment(comment.id)"
                 aria-label="supprimer mon commentaire"
                 title="Supprimer mon commentaire"
+                class="comment-delete"
+              >
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
+              </button>
+            </div>
+            <div v-if="user.user.admin">
+              <button
+                @click.prevent="deleteComment(comment.id)"
+                aria-label="supprimer le commentaire de cet utilisateur"
+                title="Supprimer le commentaire de cet utilisateur"
                 class="comment-delete"
               >
                 <font-awesome-icon :icon="['fas', 'trash-can']" />
@@ -155,6 +186,13 @@ export default {
   },
 
   methods: {
+    async refreshPosts() {
+    const result = await axios.get("http://localhost:8080/api/posts");
+    console.log(result);
+    this.posts = result.data.posts;
+    console.log(this.posts);
+  },
+
     // ---------- Add post: call function 'addPost()' > direct user to 'AddNewPost' ----------
     addPost() {
       this.$router.push({ name: "AddNewPost" });
@@ -169,26 +207,40 @@ export default {
 
     // ---------- Delete post: call function 'deletePost()' ----------
     // Check post before action
-    async deletePost(id, UserId) {
+    async deletePost(id) {
       let postToDelete = id;
-      let postOwner = UserId;
-      console.log("Ready to ❌ > Post n°", postToDelete, "- User:", postOwner);
+      console.log("Ready to ❌ > Post n°", postToDelete);
 
       if (
         confirm(
           "ℹ️ La supression du message est irréversible. Voulez-vous continuer ?"
         )
       ) {
-        await axios.delete("http://localhost:8080/api/posts/" + id);
+        await axios.delete("http://localhost:8080/api/posts/" + id)
+        .then(() => {
         console.log("Post n°", id, "now destroyed");
-        window.location.reload()
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+        this.refreshPosts();
+        })
+        .catch(function (error) {
+          console.log(error);
+        }); 
       }
+    },
+
+    // ---------- Like post: call function 'likePost()' ----------
+    // > choice to not implement dislike (it may can instaure frustration for post owner in this actual context of Groupomania)
+    async likePost(postId) {
+      let postToLike = postId;
+      console.log("Post n°", postToLike, "selected");
+      
+      await axios.post("http://localhost:8080/api/likes/posts/" + postId)
+      .then(() => {
+        console.log("Post n° " + postId + " now 💖")
+        this.refreshPosts();
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
 
     // ---------- Create comment: call function 'createComment()' ----------
@@ -283,10 +335,14 @@ export default {
         )
       ) {
         // path: '/post/:id'
-        await axios.delete("http://localhost:8080/api/comments/post/" + id);
-        console.log("Comment n°", id, "now destroyed");
-
-        window.location.reload();
+        await axios.delete("http://localhost:8080/api/comments/post/" + id)
+        .then(() => {
+          console.log("Comment n°", id, "now destroyed");
+          window.location.reload();
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     },
 
@@ -295,15 +351,6 @@ export default {
   // ---------- Get all posts created ----------
   // -> Sort the list of messages: last created at the top of the list > relevant info to user
   async mounted() {
-    // Handle loop page reload
-    // note: 'https://stackoverflow.com/a/50214060'
-    if (localStorage.getItem('reloaded')) {
-        localStorage.removeItem('reloaded');
-    } else {
-        localStorage.setItem('reloaded', '1');
-        location.reload();
-    }
-
     if (localStorage.getItem('token')) {
      console.log('User connected');
     }
@@ -328,18 +375,18 @@ h1 {
 }
 .add-btn {
   width: 170px;
-    background-image: linear-gradient( rgb(189 25 25) 0, rgb(255 255 255 / 30%) 100% );
-    background-color: #d1515a;
-    border: 1px solid;
-    box-shadow: rgb(189 25 25 / 40%) 1px 4px 5px 2px;
-    color: white;
-    cursor: pointer;
-    font-size: medium;
-    font-weight: bold;
-    opacity: 1;
-    padding: 10px;
-    text-align: center;
-    transition: all 0.3s;
+  background-image: linear-gradient( rgb(189 25 25) 0, rgb(255 255 255 / 30%) 100% );
+  background-color: #d1515a;
+  border: 1px solid;
+  box-shadow: rgb(189 25 25 / 40%) 1px 4px 5px 2px;
+  color: white;
+  cursor: pointer;
+  font-size: medium;
+  font-weight: bold;
+  opacity: 1;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.3s;
 }
 .add-btn:hover {
   background-color: bisque;
@@ -351,17 +398,40 @@ h1 {
   box-shadow: rgb(189 25 25 / 30%) 3px 5px 5px 4px;
   box-sizing: border-box;
   margin: 30px auto 30px auto;
-  width: 80vh;
+  width: 40%;
 }
+/* --- responsive --- */
+@media (min-width: 769px) {
+  .post .comment .form__submit > button {
+    width: 50%;
+  }
+}
+
+@media (min-width: 580px) and (max-width: 768px) {
+  .post {
+    width: 60%;
+  }
+}
+@media (min-width: 400px) and (max-width: 579px) {
+  .post {
+    width: 80%;
+  }
+}
+@media (min-width: 320px) and (max-width: 399px) {
+  .post {
+    width: 80%;
+  }
+}
+/* --- end responsive --- */
 .post-header {
   display: flex;
   justify-content: space-between;
 }
 .post-identity > img {
-    border-radius: 40% 0;
-    height: 45px;
-    margin-right: 5px;
-    width: 50px;
+  border-radius: 40% 0;
+  height: 45px;
+  margin-right: 5px;
+  width: 50px;
 }
 .post-identity {
   align-items: center;
@@ -369,13 +439,13 @@ h1 {
   padding: 15px 5px 5px 15px;
 }
 .picture {
-    background-color: darkslateblue;
-    border: 2px solid;
-    border-radius: 40% 0;
-    color: #fff;
-    height: 45px;
-    margin-right: 5px;
-    width: 50px;  
+  background-color: darkslateblue;
+  border: 2px solid;
+  border-radius: 40% 0;
+  color: #fff;
+  height: 45px;
+  margin-right: 5px;
+  width: 50px;  
 }
 .post-identity > p.username {
   font-weight: bold;
@@ -386,10 +456,6 @@ h1 {
   color: gray;
   font-size: smaller;
   margin-left: 5px;
-}
-.test {
-  display: flex;
-  justify-content: space-between;
 }
 .post-functions {
   display: flex;
@@ -427,6 +493,36 @@ h1 {
   max-width: 100%;
   height: auto;
 }
+/* --- interactivity --- */
+.interactivity {
+  display: flex;
+  padding-right: 15px;
+  justify-content: flex-end;
+}
+.like-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+.like-icon {
+  color: #fff;
+  height: 20px;
+  stroke: red;
+  stroke-width: 40;
+  width: 25px;
+}
+.like-icon:hover {
+  color: red;
+}
+.like-icon_u-connected {
+  color: red;
+  height: 20px;
+  stroke: red;
+  stroke-width: 40;
+  width: 25px;
+}
+
 /* ----- comment ----- */
 
 .post-comment {
@@ -442,7 +538,7 @@ h1 {
   cursor: pointer;
   font-size: medium;
   font-weight: bold;
-  margin: 0 10px 20px 10px;
+  margin: 0 10px 5px 10px;
   opacity: 1;
   padding: 10px;
   text-align: center;
@@ -460,6 +556,10 @@ h1 {
   align-items: center;
   display: flex;
   padding: 15px 5px 5px 15px;
+}
+.comment-icon {
+  color: darksalmon;
+  font-size: 1.1em;
 }
 .comment-header-list {
   align-items: center;
@@ -509,11 +609,11 @@ h1 {
 }
 .comment-cancel:hover {
   background-color: bisque;
-  border: 1px solid #d1515a;
   border-radius: 5px;
+  height: 30px;
 }
 .comment .form__submit > button {
-  width: 270px;
+  width: 80%;
   background-image: linear-gradient(
     rgb(189 25 25) 0,
     rgb(255 255 255 / 30%) 100%

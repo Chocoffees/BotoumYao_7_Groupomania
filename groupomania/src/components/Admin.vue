@@ -67,29 +67,43 @@ export default {
   },
 
   methods: {
+    async refreshAccounts() {
+      const result = await axios.get("http://localhost:8080/api/users");
+      console.log(result);
+      this.users = result.data.users;
+      console.log(this.users);
+    },
+
     // ---------- Delete user account: call function 'deleteUser()' ----------
     async deleteUser(id) {
       let memberToDelete = id;
       console.log("Ready to ❌ > member n°", memberToDelete);
 
       if (confirm("ℹ️ Le compte de cet employé va être supprimé.")) {
-        await axios.delete("http://localhost:8080/api/users/myaccount/" + id);
-        console.log("Member account n°", id, "now destroyed");
-
-        alert("ℹ️ Le compte est maintenant supprimé.")
-        document.location = '/users'
-        //window.location.reload();
+        await axios.delete("http://localhost:8080/api/users/myaccount/" + id)
+        .then(() => {
+          console.log("Member account n°", id, "now destroyed");
+          alert("ℹ️ Le compte est maintenant supprimé.");
+          this.refreshAccounts();
+          //document.location = '/users'
+          //window.location.reload();
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     },
+  
   },
 
-  // ---------- Retrieve all users data ----------
-  async mounted() {
-    const result = await axios.get("http://localhost:8080/api/users");
-    console.log(result);
-    this.users = result.data.users;
-    console.log(this.users);
-  },
+    // ---------- Retrieve all users data ----------
+    async mounted() {
+      const result = await axios.get("http://localhost:8080/api/users");
+      console.log(result);
+      this.users = result.data.users;
+      console.log(this.users);
+    },
+
 };
 </script>
 

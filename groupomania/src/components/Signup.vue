@@ -178,10 +178,11 @@ export default {
 }
 .registration label {
   color: #132644;
+  display: flex;
   font-size: small;
   font-weight: bold;
+  justify-content: center;
   margin-bottom: 10px;
-  position: absolute;
 }
 .registration input {
   width: 260px;
@@ -191,7 +192,7 @@ export default {
   box-shadow: rgb(189 25 25 / 30%) 3px 5px 5px 2px;
   box-sizing: border-box;
   color: #132644;
-  margin: 20px auto 15px auto;
+  margin: 0 auto 15px auto;
   outline: 0;
   text-align: center;
 }

@@ -118,8 +118,30 @@ h1 {
 .creation {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin: 30px auto 30px auto;
+  width: 50%;
 }
+/* --- responsive --- */
+@media (min-width: 580px) and (max-width: 768px) {
+  .creation {
+    width: 60%;
+  }
+}
+@media (min-width: 400px) and (max-width: 579px) {
+  .creation {
+    width: 80%;
+  }
+}
+@media (min-width: 320px) and (max-width: 399px) {
+  .creation {
+    width: 80%;
+  }
+  .form-group > label {
+    font-size: small;
+    font-weight: bold;
+  }
+}
+/* --- end responsive --- */
 .icon {
   width: 130px;
 }
@@ -134,26 +156,25 @@ h1 {
   color: #132644;
   font-family: sans-serif;
   height: 100px;
-  margin: 30px auto 15px auto;
+  margin: 15px auto 15px auto;
   outline: 0;
   padding: 5px 5px 70px 5px;
-  width: 400px;
+  width: 100%;
 }
 .creation label {
   color: #132644;
   font-size: medium;
   font-weight: bold;
   margin-bottom: 10px;
-  position: absolute;
 }
 .creation input {
-  width: 400px;
+  width: 100%;
   height: 35px;
   border: 1px solid transparent;
   box-shadow: rgb(189 25 25 / 30%) 3px 5px 5px 2px;
   box-sizing: border-box;
   color: #132644;
-  margin: 30px auto 15px auto;
+  margin: 15px auto 15px auto;
   outline: 0;
   text-align: left;
 }
