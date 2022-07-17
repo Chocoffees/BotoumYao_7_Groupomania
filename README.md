@@ -45,6 +45,10 @@ $ npm run serve
 ```
 ➡️ http://localhost:8081/
 
+## API
+
+👉 [Accès documentation API](https://documenter.getpostman.com/view/18336054/UzQvt5Ar) du projet 
+
 ## Utilisation
 
 Pour accéder au réseau social interne de Groupomania :
