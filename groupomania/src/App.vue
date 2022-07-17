@@ -1,7 +1,6 @@
 <!-- html code -->
 <template>
   <div id="app" >
-    <!-- A VOIR A LA FIN :style="{ 'background-image': 'url(' + require('./assets/social-media-gdj_pixabay.png') + ')' }" -->
     <!-- list using components -->
     <Nav />
     <div>

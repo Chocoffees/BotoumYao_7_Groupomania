@@ -84,7 +84,7 @@ export default {
           localStorage.removeItem('token');
           this.$router.push('/users/login');
           console.log("User now logged out")
-          window.location.reload()
+          //window.location.reload()
           document.location = '/users/login'
         }
       },

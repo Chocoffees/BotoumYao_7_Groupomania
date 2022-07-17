@@ -1,4 +1,4 @@
-<!-- Create component 'AccountUser' > Allow user to update personal data -->
+<!-- Create component 'AccountUser' > Allow user to access to personal data -->
 
 <template>
   <h1>Mon compte</h1>
