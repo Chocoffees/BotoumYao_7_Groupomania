@@ -126,35 +126,52 @@ exports.updatePost = (req, res, next) => {
     const content = req.body.content;
     const attachment = req.body.attachment;
 
-    models.Post.findByPk(id)
+    const headers = req.headers['authorization'];
+    const userId = jwthandle.getUserId(headers);
+    const User = models.User;
+
+    /*** in this final version: roles reviewed ***/
+
+    models.Post.findOne({ where: { id: id } })
         .then(post => {
             console.log(post);
             if (!post) {  // if can not find post
                 return res.status(401).json({ error: 'Post not found' });
             }
-            // Check required fields to valid update action
-            if (title === null || attachment === null) {
-                return res.status(400).json({
-                    error: 'Empty input field'
-                });
-            }
-            post.update({
-                title: title,
-                content: content,
-                attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+            
+            User.findOne({
+                where: {
+                    [Op.or]: [
+                        { id: userId },
+                        { admin: 1 }
+                    ]
+                }
             })
-                .then(() => res.status(200).json({
-                    message: 'Post now updated with success!',
-                    id, title
-                }))
-                .catch(error => {
-                    console.log(error)
-                    res.status(400).json({ error: 'Post update failed' })
-                })
-                .catch(error => {
-                    console.log(error.response)
-                    res.status(500).json({ error: 'Server error' })
-                })
+                .then(user => {
+                    console.log(user);
+
+                    if (user || user.admin == true) {
+                        post.update({
+                            title: title,
+                            content: content,
+                            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                        })
+                            .then(() => res.status(200).json({
+                                message: 'Post now updated with success!',
+                                id, title
+                            }))
+                            .catch(error => {
+                                console.log(error)
+                                res.status(400).json({ error: 'Post update failed' })
+                            })
+                            .catch(error => {
+                                console.log(error.response)
+                                res.status(500).json({ error: 'Server error' })
+                            })
+                    } 
+
+                })     
+
         })
 
 };
@@ -180,7 +197,7 @@ exports.deletePost = (req, res, next) => {
             console.log(user);
             if (!user) {  // if can not find user
                 return res.status(401).json({ error: 'Deletion not possible' });
-            } 
+            }
             else if (user || user.admin == true) {
                 models.Post.findOne({ where: { id: id } })
                     .then(post => {
