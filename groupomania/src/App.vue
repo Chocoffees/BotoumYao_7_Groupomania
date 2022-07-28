@@ -114,7 +114,7 @@ export default {
   display: none;
 }
 /* --- responsive --- */
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
   /** menu 🍔 **/
   .nav > .nav-btn {
     display: inline-block;
