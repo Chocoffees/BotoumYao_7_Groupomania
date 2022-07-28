@@ -139,7 +139,7 @@ exports.updateOneUser = (req, res, next) => {
     // Authorize user with jwt > edit account
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
-   
+
     const id = req.params.id;
     const username = req.body.username;
     const avatar = req.body.avatar;
@@ -168,16 +168,16 @@ exports.updateOneUser = (req, res, next) => {
                 avatar: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
                 service: service,
             })
-            .then(() => res.status(200).json({ user }))
-            .catch(error => {
-                console.log(error)
-                res.status(400).json({ error: 'Update user data failed' })
-            })
-            .catch(error => {
-                console.log(error.response)
-                res.status(500).json({ error: 'Server error' })
-            })
-        
+                .then(() => res.status(200).json({ user }))
+                .catch(error => {
+                    console.log(error)
+                    res.status(400).json({ error: 'Update user data failed' })
+                })
+                .catch(error => {
+                    console.log(error.response)
+                    res.status(500).json({ error: 'Server error' })
+                })
+
         })
         .catch(error => {
             console.log(error.response)
@@ -193,28 +193,51 @@ exports.deleteUser = (req, res, next) => {
     const headers = req.headers['authorization'];
     const userId = jwthandle.getUserId(headers);
     const id = req.params.id;
-    
-    /**** admin action in progress ****/
-    // to delete user also by an admin > use Op.or ? 
-    //Models.User.findAll({
-    //where: {
-    //[Op.or]: [
-    //{ id: userId },
-    //{ admin: 1 }
-    //]
-    //}
-    //})
-    
-    User.findOne({ where: { id: userId } })
+
+    /*** in this final version: admin role reviewed ***/
+
+    // SELECT `id`, `email`, `password`, `username`, `service`, `avatar`, `admin`, `createdAt`, `updatedAt` FROM `Users` AS `User` WHERE (`User`.`id` = xxx OR `User`.`admin` = 1);
+    models.User.findAll({
+        where: {
+            [Op.or]: [
+                { id: userId },
+                { admin: 1 }
+            ]
+        }
+    })
         .then(user => {
             console.log(user);
             if (!user) {  // if can not find user
                 return res.status(401).json({ error: 'Deletion not possible, user not found in database' });
             }
-            models.User.destroy({ where: { id: id } })
-            return res.status(200).json({ message: 'User removed from database' })
+            else if (user || user.admin == true) {
+                models.User.findOne({ where: { id: id } })
+                    .then(user => {
+                        console.log('Member to remove:', user);
+                        if (!user) {  // if can not find user
+                            return res.status(401).json({ error: 'Deletion not possible' });
+                        }
+                        models.User.destroy({ where: { id: id } })
+                        models.Post.destroy({ where: { userId: id } })
+                        models.Comment.destroy({ where: { userId: id } })
+                        models.Like.destroy({ where: { userId: id } })
+
+                        res.status(200).json({ message: 'User removed from database' })
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.status(400).json({ error: 'Deletion failed' })
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        res.status(500).json({ error: 'Server error' })
+                    })
+            }
         })
-        .catch(error => res.status(500).json({ error }));
+        .catch(error => {
+            console.log(error.response)
+            res.status(500).json({ error: 'Server error' })
+        })
 };
 
 
